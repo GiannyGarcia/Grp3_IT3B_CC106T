@@ -1,15 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
     android:orientation="vertical"
-    android:padding="24dp">
+    android:gravity="center"
+    android:background="#FFFFFF"
+    android:padding="20dp">
 
+    <!-- Logo Text -->
     <TextView
-        android:id="@+id/textViewWelcome"
+        android:id="@+id/logoText"
+        android:layout_width="338dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/merriweather_bold"
+        android:gravity="center"
+        android:text="San Isidro\nPharmacy"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textSize="60sp"
+        android:textStyle="bold" />
+
+    <!-- Logo Image -->
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="213dp"
+        android:layout_height="173dp"
+        android:layout_marginBottom="20dp"
+        android:contentDescription="App Logo"
+        android:scaleType="fitCenter"
+        android:src="@drawable/pharmacy_logo"
+        app:srcCompat="@drawable/pharmacy_logo" />
+
+    <!-- Intro Text -->
+    <TextView
+        android:id="@+id/introText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Welcome!"
-        android:textSize="20sp"
-        android:textStyle="bold"/>
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/playfair_medium"
+        android:letterSpacing="0.1"
+        android:text="Here, we care for you."
+        android:textColor="#000000"
+        android:textSize="14sp"
+        android:textStyle="bold|italic" />
+
+    <!-- Continue Button -->
+    <Button
+        android:id="@+id/continueBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:backgroundTint="#2ACC2F"
+        android:text="Continue"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold" />
+
 </LinearLayout>

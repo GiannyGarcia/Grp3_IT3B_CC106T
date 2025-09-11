@@ -9,7 +9,16 @@
         android:theme="@style/Theme.SanIsidroPharmacy">
 
         <!-- Main/Home Screen -->
-        <activity android:name=".MainActivity" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+
 
         <!-- Sign Up Screen -->
         <activity android:name=".SignUpActivity" />
@@ -23,6 +32,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Forgot Password screen -->
+        <activity android:name=".ForgotPasswordActivity" />
+
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
 
     </application>
 </manifest>
