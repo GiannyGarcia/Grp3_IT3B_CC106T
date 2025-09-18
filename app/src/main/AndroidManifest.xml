@@ -8,21 +8,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SanIsidroPharmacy">
 
-        <!-- Main/Home Screen -->
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-
-
-        <!-- Sign Up Screen -->
-        <activity android:name=".SignUpActivity" />
-
         <!-- Login Screen (Launcher) -->
         <activity
             android:name=".LoginActivity"
@@ -33,8 +18,17 @@
             </intent-filter>
         </activity>
 
-        <!-- Forgot Password screen -->
+        <!-- Catalog Screen -->
+        <activity android:name=".CatalogActivity" />
+
+        <!-- Sign Up Screen -->
+        <activity android:name=".SignUpActivity" />
+
+        <!-- Forgot Password Screen -->
         <activity android:name=".ForgotPasswordActivity" />
+
+        <!-- MainActivity (optional dashboard, not launcher) -->
+        <activity android:name=".MainActivity" />
 
         <meta-data
             android:name="preloaded_fonts"
