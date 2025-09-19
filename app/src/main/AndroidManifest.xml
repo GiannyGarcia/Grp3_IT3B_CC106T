@@ -30,6 +30,9 @@
         <!-- MainActivity (optional dashboard, not launcher) -->
         <activity android:name=".MainActivity" />
 
+        <activity android:name=".MedicineDetailActivity" />
+
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

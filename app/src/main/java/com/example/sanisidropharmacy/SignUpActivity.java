@@ -22,24 +22,21 @@ public class SignUpActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sign_up); // <-- ensure this matches the XML filename
+        setContentView(R.layout.activity_sign_up);
 
-        // init views AFTER setContentView
         nameInput = findViewById(R.id.nameInput);
         emailInput = findViewById(R.id.emailInput);
         passwordInput = findViewById(R.id.passwordInput);
         birthDateInput = findViewById(R.id.birthDateInput);
-        signupButton = findViewById(R.id.signupButton); // <-- now exists in XML
+        signupButton = findViewById(R.id.signupButton);
         loginRedirect = findViewById(R.id.loginRedirect);
 
-        // go back to login if tapped
         loginRedirect.setOnClickListener(v -> {
             Intent i = new Intent(SignUpActivity.this, LoginActivity.class);
             startActivity(i);
             finish();
         });
 
-        // date picker for birth date
         birthDateInput.setOnClickListener(v -> showDatePicker());
 
         signupButton.setOnClickListener(v -> {
@@ -49,13 +46,24 @@ public class SignUpActivity extends AppCompatActivity {
             String birthDate = birthDateInput.getText().toString().trim();
 
             if (name.isEmpty() || email.isEmpty() || password.isEmpty() || birthDate.isEmpty()) {
-                Toast.makeText(SignUpActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // TODO: implement actual signup (DB / Firebase). For now show a toast and finish.
-            Toast.makeText(SignUpActivity.this, "Account created successfully!", Toast.LENGTH_SHORT).show();
-            // Option: go back to login screen
+            if (!email.contains("@")) {
+                Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (password.length() < 8) {
+                Toast.makeText(this, "Password must be at least 8 characters", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Register user in temporary database
+            LoginActivity.registerUser(email, password);
+
+            Toast.makeText(this, "Account created successfully!", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
