@@ -1,51 +1,50 @@
 package com.example.sanisidropharmacy;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Filter;
-import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
+import com.bumptech.glide.Glide;
+
 import java.util.List;
 
-public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.MedicineViewHolder> implements Filterable {
-
+public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.MedicineViewHolder> {
+    private Context context;
     private List<Medicine> medicineList;
-    private List<Medicine> medicineListFull;
-    private OnMedicineClickListener listener;
 
-    public interface OnMedicineClickListener {
-        void onMedicineClick(Medicine medicine);
-    }
-
-    public MedicineAdapter(List<Medicine> medicineList, OnMedicineClickListener listener) {
+    public MedicineAdapter(Context context, List<Medicine> medicineList) {
+        this.context = context;
         this.medicineList = medicineList;
-        this.medicineListFull = new ArrayList<>(medicineList);
-        this.listener = listener;
     }
 
     @NonNull
     @Override
     public MedicineViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_medicine, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.item_medicine, parent, false);
         return new MedicineViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MedicineViewHolder holder, int position) {
         Medicine medicine = medicineList.get(position);
-        holder.medicineName.setText(medicine.getName());
-        holder.medicinePrice.setText(medicine.getPrice());
-        holder.medicineImage.setImageResource(medicine.getImageResId());
 
-        holder.itemView.setOnClickListener(v -> listener.onMedicineClick(medicine));
+        holder.medicineName.setText(medicine.getName());
+        holder.medicinePrice.setText("₱" + medicine.getPrice());
+        holder.medicineStock.setText("Stock: " + medicine.getStock());
+        holder.medicineCategory.setText("Category: " + medicine.getCategory());
+        holder.medicinePrescription.setText("Prescription: " + medicine.getPrescriptionType());
+
+        // Load image with Glide
+        Glide.with(context)
+                .load(medicine.getImageUrl())
+                .placeholder(R.drawable.ic_medicine_placeholder) // fallback image
+                .into(holder.medicineImage);
     }
 
     @Override
@@ -53,46 +52,17 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.Medici
         return medicineList.size();
     }
 
-    @Override
-    public Filter getFilter() {
-        return medicineFilter;
-    }
-
-    private final Filter medicineFilter = new Filter() {
-        @Override
-        protected FilterResults performFiltering(CharSequence constraint) {
-            List<Medicine> filteredList = new ArrayList<>();
-            if (constraint == null || constraint.length() == 0) {
-                filteredList.addAll(medicineListFull);
-            } else {
-                String filterPattern = constraint.toString().toLowerCase().trim();
-                for (Medicine item : medicineListFull) {
-                    if (item.getName().toLowerCase().contains(filterPattern)) {
-                        filteredList.add(item);
-                    }
-                }
-            }
-            FilterResults results = new FilterResults();
-            results.values = filteredList;
-            return results;
-        }
-
-        @Override
-        protected void publishResults(CharSequence constraint, FilterResults results) {
-            medicineList.clear();
-            medicineList.addAll((List) results.values);
-            notifyDataSetChanged();
-        }
-    };
-
-    public static class MedicineViewHolder extends RecyclerView.ViewHolder {
-        TextView medicineName, medicinePrice;
+    static class MedicineViewHolder extends RecyclerView.ViewHolder {
+        TextView medicineName, medicinePrice, medicineStock, medicineCategory, medicinePrescription;
         ImageView medicineImage;
 
         public MedicineViewHolder(@NonNull View itemView) {
             super(itemView);
             medicineName = itemView.findViewById(R.id.medicineName);
             medicinePrice = itemView.findViewById(R.id.medicinePrice);
+            medicineStock = itemView.findViewById(R.id.medicineStock);
+            medicineCategory = itemView.findViewById(R.id.medicineCategory);
+            medicinePrescription = itemView.findViewById(R.id.medicinePrescription);
             medicineImage = itemView.findViewById(R.id.medicineImage);
         }
     }
