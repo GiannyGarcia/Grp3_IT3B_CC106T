@@ -2,8 +2,11 @@ package com.example.sanisidropharmacy;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
@@ -24,33 +27,27 @@ public class CatalogActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Make sure this layout name matches your XML file name (e.g., activity_catalog.xml)
         setContentView(R.layout.activity_catalog);
 
-        // Top Menu
+        // 🔹 Initialize Views
         menuIcon = findViewById(R.id.menu_icon);
-
-        // Search bar
         searchBar = findViewById(R.id.search_bar);
-
-        // Categories
         cardPrescription = findViewById(R.id.card_prescription);
         cardNonPrescription = findViewById(R.id.card_non_prescription);
         cardNonIntake = findViewById(R.id.card_non_intake);
         cardDevice = findViewById(R.id.card_device);
-
-        // Bottom Navigation
         navHome = findViewById(R.id.nav_home);
         navCart = findViewById(R.id.nav_cart);
         navUser = findViewById(R.id.nav_user);
 
         // 🔹 MENU ICON CLICK
         menuIcon.setOnClickListener(v -> {
-            // For example, open a drawer or menu activity
-            startActivity(new Intent(CatalogActivity.this, MenuActivity.class));
+            Intent intent = new Intent(CatalogActivity.this, MenuActivity.class);
+            startActivity(intent);
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
 
-        // 🔹 CATEGORY CLICKS
+        // 🔹 CATEGORY CLICKS — open each category
         cardPrescription.setOnClickListener(v -> openCategory("Prescription Medicines"));
         cardNonPrescription.setOnClickListener(v -> openCategory("Non-Prescription Medicines"));
         cardNonIntake.setOnClickListener(v -> openCategory("Non-Intake Products"));
@@ -58,21 +55,35 @@ public class CatalogActivity extends AppCompatActivity {
 
         // 🔹 BOTTOM NAVIGATION
         navHome.setOnClickListener(v -> {
-            // Example: navigate to Home
-            startActivity(new Intent(CatalogActivity.this, HomeActivity.class));
-            overridePendingTransition(0, 0);
+            Intent intent = new Intent(CatalogActivity.this, HomeActivity.class);
+            startActivity(intent);
+            overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
         });
 
         navCart.setOnClickListener(v -> {
-            // Example: navigate to Cart
-            startActivity(new Intent(CatalogActivity.this, CartActivity.class));
-            overridePendingTransition(0, 0);
+            Intent intent = new Intent(CatalogActivity.this, CartActivity.class);
+            startActivity(intent);
+            overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
         });
 
         navUser.setOnClickListener(v -> {
-            // Example: navigate to User/Profile
-            startActivity(new Intent(CatalogActivity.this, UserProfileActivity.class));
-            overridePendingTransition(0, 0);
+            Intent intent = new Intent(CatalogActivity.this, UserProfileActivity.class);
+            startActivity(intent);
+            overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+        });
+
+        // 🔹 SEARCH BAR FUNCTIONALITY
+        searchBar.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterCategories(s.toString().trim());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) { }
         });
     }
 
@@ -81,5 +92,27 @@ public class CatalogActivity extends AppCompatActivity {
         Intent intent = new Intent(CatalogActivity.this, CategoryDetailsActivity.class);
         intent.putExtra("CATEGORY_NAME", categoryName);
         startActivity(intent);
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+    }
+
+
+    // 🔹 Simple filtering — show Toast for demo purpose
+    private void filterCategories(String query) {
+        if (query.isEmpty()) {
+            // Nothing typed
+            return;
+        }
+
+        if (query.equalsIgnoreCase("prescription")) {
+            openCategory("Prescription Medicines");
+        } else if (query.equalsIgnoreCase("non-prescription")) {
+            openCategory("Non-Prescription Medicines");
+        } else if (query.equalsIgnoreCase("device")) {
+            openCategory("Device or Monitoring Products");
+        } else if (query.equalsIgnoreCase("non-intake")) {
+            openCategory("Non-Intake Products");
+        } else {
+            Toast.makeText(this, "No matching category found.", Toast.LENGTH_SHORT).show();
+        }
     }
 }

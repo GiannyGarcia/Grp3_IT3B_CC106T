@@ -38,18 +38,19 @@
                 android:gravity="center_horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="335dp"
                     android:layout_height="wrap_content"
                     android:text="San Isidro"
-                    android:textStyle="bold"
-                    android:textSize="22sp"
-                    android:textColor="#000000" />
+                    android:textAlignment="center"
+                    android:textColor="#000000"
+                    android:textSize="34sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Pharmacy"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textColor="#000000" />
             </LinearLayout>
         </LinearLayout>
@@ -94,215 +95,222 @@
                 android:src="@drawable/ic_search1" />
         </LinearLayout>
 
-        <!-- Scrollable Content -->
-        <ScrollView
+        <!-- Scrollable Content and Floating Button -->
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1">
 
-            <LinearLayout
+            <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingHorizontal="16dp">
+                android:layout_height="match_parent">
 
-                <!-- Prescription Medicines -->
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/card_prescription"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:cardCornerRadius="14dp"
-                    app:cardElevation="6dp">
+                    android:orientation="vertical"
+                    android:paddingHorizontal="16dp">
 
-                    <LinearLayout
+                    <!-- Prescription Medicines -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/card_prescription"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:padding="12dp"
-                        android:gravity="center_vertical">
-
-                        <ImageView
-                            android:layout_width="95dp"
-                            android:layout_height="95dp"
-                            android:adjustViewBounds="true"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/prescription_meds"
-                            android:layout_marginEnd="10dp" />
+                        android:layout_marginBottom="16dp"
+                        app:cardCornerRadius="14dp"
+                        app:cardElevation="6dp">
 
                         <LinearLayout
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
+                            android:orientation="horizontal"
+                            android:padding="12dp"
+                            android:gravity="center_vertical">
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Prescription Medicines"
-                                android:textStyle="bold"
-                                android:textSize="16sp"
-                                android:textColor="#000000" />
+                            <ImageView
+                                android:layout_width="95dp"
+                                android:layout_height="95dp"
+                                android:adjustViewBounds="true"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/prescription_meds"
+                                android:layout_marginEnd="10dp" />
 
-                            <TextView
-                                android:layout_width="wrap_content"
+                            <LinearLayout
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="Medicines that require a doctor’s prescription before purchase. Examples: Amoxicillin, Losartan, Metformin."
-                                android:textSize="14sp"
-                                android:textColor="#555555" />
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Prescription Medicines"
+                                    android:textStyle="bold"
+                                    android:textSize="16sp"
+                                    android:textColor="#000000" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:text="Medicines that require a doctor’s prescription before purchase."
+                                    android:textSize="14sp"
+                                    android:textColor="#555555" />
+                            </LinearLayout>
                         </LinearLayout>
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                    </androidx.cardview.widget.CardView>
 
-                <!-- Non-Prescription Medicines -->
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/card_non_prescription"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:cardCornerRadius="14dp"
-                    app:cardElevation="6dp">
-
-                    <LinearLayout
+                    <!-- Non-Prescription Medicines -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/card_non_prescription"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:padding="12dp"
-                        android:gravity="center_vertical">
-
-                        <ImageView
-                            android:layout_width="95dp"
-                            android:layout_height="95dp"
-                            android:adjustViewBounds="true"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/non_prescription"
-                            android:layout_marginEnd="10dp" />
+                        android:layout_marginBottom="16dp"
+                        app:cardCornerRadius="14dp"
+                        app:cardElevation="6dp">
 
                         <LinearLayout
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="12dp">
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Non-Prescription Medicines"
-                                android:textStyle="bold"
-                                android:textSize="16sp"
-                                android:textColor="#000000" />
+                            <ImageView
+                                android:layout_width="95dp"
+                                android:layout_height="95dp"
+                                android:layout_marginEnd="10dp"
+                                android:adjustViewBounds="true"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/non_prescription" />
 
-                            <TextView
-                                android:layout_width="wrap_content"
+                            <LinearLayout
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="Medicines available without prescription for minor health problems. Examples: Paracetamol, Ibuprofen, Cetirizine."
-                                android:textSize="14sp"
-                                android:textColor="#555555" />
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Non-Prescription Medicines"
+                                    android:textColor="#000000"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:text="Medicines available without prescription for minor health problems. "
+                                    android:textColor="#555555"
+                                    android:textSize="14sp" />
+                            </LinearLayout>
                         </LinearLayout>
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                    </androidx.cardview.widget.CardView>
 
-                <!-- Non-Intake Products -->
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/card_non_intake"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:cardCornerRadius="14dp"
-                    app:cardElevation="6dp">
-
-                    <LinearLayout
+                    <!-- Non-Intake Products -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/card_non_intake"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:padding="12dp"
-                        android:gravity="center_vertical">
-
-                        <ImageView
-                            android:layout_width="95dp"
-                            android:layout_height="95dp"
-                            android:adjustViewBounds="true"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/non_intake1"
-                            android:layout_marginEnd="10dp" />
+                        android:layout_marginBottom="16dp"
+                        app:cardCornerRadius="14dp"
+                        app:cardElevation="6dp">
 
                         <LinearLayout
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
+                            android:orientation="horizontal"
+                            android:padding="12dp"
+                            android:gravity="center_vertical">
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Non-Intake Products"
-                                android:textStyle="bold"
-                                android:textSize="16sp"
-                                android:textColor="#000000" />
+                            <ImageView
+                                android:layout_width="95dp"
+                                android:layout_height="95dp"
+                                android:adjustViewBounds="true"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/non_intake1"
+                                android:layout_marginEnd="10dp" />
 
-                            <TextView
-                                android:layout_width="wrap_content"
+                            <LinearLayout
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="Healthcare products applied externally such as ointments, oils, and disinfectants. Examples: Katinko, Efficascent Oil, Betadine."
-                                android:textSize="14sp"
-                                android:textColor="#555555" />
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Non-Intake Products"
+                                    android:textStyle="bold"
+                                    android:textSize="16sp"
+                                    android:textColor="#000000" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:text="Healthcare products applied externally such as ointments, oils, and disinfectants."
+                                    android:textSize="14sp"
+                                    android:textColor="#555555" />
+                            </LinearLayout>
                         </LinearLayout>
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                    </androidx.cardview.widget.CardView>
 
-                <!-- Device / Monitoring Products -->
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/card_device"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:cardCornerRadius="14dp"
-                    app:cardElevation="6dp"
-                    android:layout_marginBottom="80dp">
-
-                    <LinearLayout
+                    <!-- Device / Monitoring Products -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/card_device"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:padding="12dp"
-                        android:gravity="center_vertical">
-
-                        <ImageView
-                            android:layout_width="95dp"
-                            android:layout_height="95dp"
-                            android:adjustViewBounds="true"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/device_monitoring"
-                            android:layout_marginEnd="10dp" />
+                        app:cardCornerRadius="14dp"
+                        app:cardElevation="6dp"
+                        android:layout_marginBottom="80dp">
 
                         <LinearLayout
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
+                            android:orientation="horizontal"
+                            android:padding="12dp"
+                            android:gravity="center_vertical">
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Device or Monitoring Products"
-                                android:textStyle="bold"
-                                android:textSize="16sp"
-                                android:textColor="#000000" />
+                            <ImageView
+                                android:layout_width="95dp"
+                                android:layout_height="95dp"
+                                android:adjustViewBounds="true"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/device_monitoring"
+                                android:layout_marginEnd="10dp" />
 
-                            <TextView
-                                android:layout_width="wrap_content"
+                            <LinearLayout
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="Devices used for health monitoring. Examples: Thermometer, BP Monitor, Glucometer, Nebulizer, Pulse Oximeter."
-                                android:textSize="14sp"
-                                android:textColor="#555555" />
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Device or Monitoring Products"
+                                    android:textStyle="bold"
+                                    android:textSize="16sp"
+                                    android:textColor="#000000" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:text="Devices used for health monitoring."
+                                    android:textSize="14sp"
+                                    android:textColor="#555555" />
+                            </LinearLayout>
                         </LinearLayout>
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-            </LinearLayout>
-        </ScrollView>
+                    </androidx.cardview.widget.CardView>
+                </LinearLayout>
+            </ScrollView>
+
+
+        </FrameLayout>
 
         <!-- Bottom Navigation -->
         <LinearLayout
@@ -339,6 +347,7 @@
                 android:layout_weight="1"
                 android:contentDescription="Profile"
                 android:src="@drawable/ic_user" />
+
         </LinearLayout>
     </LinearLayout>
 </androidx.drawerlayout.widget.DrawerLayout>

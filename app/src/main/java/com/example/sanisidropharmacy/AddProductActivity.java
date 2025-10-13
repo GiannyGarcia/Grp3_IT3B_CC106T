@@ -25,52 +25,52 @@ public class AddProductActivity extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
 
     private ImageView productImageView;
-    private EditText productNameInput, productPriceInput, productStockInput;
+    private EditText productNameInput, productDescriptionInput, productIntakeInput, productPriceInput;
     private Button expiryDateButton, saveButton, uploadImageButton;
     private Spinner categorySpinner, brandSpinner;
 
     private String expiryDate = "";
     private Uri imageUri = null;
+    private String categoryName = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_product);
 
+        // Get category from previous screen
+        categoryName = getIntent().getStringExtra("CATEGORY_NAME");
+
+        // Bind views
         productImageView = findViewById(R.id.productImageView);
         uploadImageButton = findViewById(R.id.uploadImageButton);
         productNameInput = findViewById(R.id.productNameInput);
+        productDescriptionInput = findViewById(R.id.productDescriptionInput);
+        productIntakeInput = findViewById(R.id.productIntakeInput);
         productPriceInput = findViewById(R.id.productPriceInput);
-        productStockInput = findViewById(R.id.productStockInput);
         expiryDateButton = findViewById(R.id.expiryDateButton);
         categorySpinner = findViewById(R.id.categorySpinner);
         brandSpinner = findViewById(R.id.brandSpinner);
         saveButton = findViewById(R.id.saveProductButton);
 
-        // Setup category spinner
-        String[] categories = {"Requires Prescription", "Non-Prescription", "Others"};
+        // Category spinner setup (optional, or could be fixed to categoryName)
+        String[] categories = {"Prescription", "Non-Prescription", "Non-Intake", "Device"};
         ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, categories);
         categorySpinner.setAdapter(categoryAdapter);
 
-        // Setup brand spinner
+        // Brand spinner setup
         String[] brands = {"Generic", "Branded"};
         ArrayAdapter<String> brandAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, brands);
         brandSpinner.setAdapter(brandAdapter);
 
-        // Upload image
         uploadImageButton.setOnClickListener(v -> openImageChooser());
-
-        // Expiry date picker
         expiryDateButton.setOnClickListener(v -> showDatePicker());
-
-        // Save product
         saveButton.setOnClickListener(v -> saveProduct());
     }
 
     private void openImageChooser() {
-        Intent intent = new Intent();
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
@@ -105,26 +105,41 @@ public class AddProductActivity extends AppCompatActivity {
 
     private void saveProduct() {
         String name = productNameInput.getText().toString().trim();
+        String desc = productDescriptionInput.getText().toString().trim();
+        String intake = productIntakeInput.getText().toString().trim();
         String priceStr = productPriceInput.getText().toString().trim();
-        String stockStr = productStockInput.getText().toString().trim();
         String category = categorySpinner.getSelectedItem().toString();
         String brand = brandSpinner.getSelectedItem().toString();
 
-        if (name.isEmpty() || priceStr.isEmpty() || stockStr.isEmpty() || expiryDate.isEmpty() || imageUri == null) {
+        if (name.isEmpty() || desc.isEmpty() || intake.isEmpty() || priceStr.isEmpty() || expiryDate.isEmpty() || imageUri == null) {
             Toast.makeText(this, "Please complete all fields", Toast.LENGTH_SHORT).show();
             return;
         }
 
         double price = Double.parseDouble(priceStr);
-        int stock = Integer.parseInt(stockStr);
+        Medicine newMedicine = new Medicine(name, desc, intake, price, expiryDate, category, brand, imageUri.toString());
 
-        Medicine medicine = new Medicine(name, price, stock, expiryDate, category, brand, imageUri.toString());
+        // Save to appropriate category list
+        switch (categoryName) {
+            case "Prescription Medicines":
+                DataStorage.prescriptionList.add(newMedicine);
+                break;
+            case "Non-Prescription Medicines":
+                DataStorage.nonPrescriptionList.add(newMedicine);
+                break;
+            case "Non-Intake Products":
+                DataStorage.nonIntakeList.add(newMedicine);
+                break;
+            case "Device or Monitoring Products":
+                DataStorage.deviceList.add(newMedicine);
+                break;
+        }
 
-        DataStorage.medicineList.add(medicine);
+        Toast.makeText(this, "Product added to " + categoryName, Toast.LENGTH_SHORT).show();
 
-        Toast.makeText(this, "Product added successfully!", Toast.LENGTH_SHORT).show();
-
-        Intent intent = new Intent(AddProductActivity.this, CatalogActivity.class);
+        // Go back to the same category
+        Intent intent = new Intent(AddProductActivity.this, CategoryDetailsActivity.class);
+        intent.putExtra("CATEGORY_NAME", categoryName);
         startActivity(intent);
         finish();
     }

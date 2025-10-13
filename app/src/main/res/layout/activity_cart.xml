@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:padding="16dp"
+    tools:context=".CartActivity">
+
+    <TextView
+        android:id="@+id/cartTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="My Cart"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="@color/teal_700"
+        android:paddingBottom="12dp" />
+
+    <TextView
+        android:id="@+id/cartMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Your cart is currently empty."
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:paddingBottom="20dp" />
+
+    <ImageView
+        android:id="@+id/cartImage"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:src="@drawable/empty_cart"
+        android:scaleType="fitCenter"
+        android:contentDescription="Empty cart illustration" />
+
+    <include layout="@layout/layout_bottom_nav" />
+
+</LinearLayout>
