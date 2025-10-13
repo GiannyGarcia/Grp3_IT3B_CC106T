@@ -12,15 +12,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.MedicineViewHolder> {
     private Context context;
-    private List<Medicine> medicineList;
+    private List<Medicine> originalList; // full list
+    private List<Medicine> filteredList; // filtered list for search
 
     public MedicineAdapter(Context context, List<Medicine> medicineList) {
         this.context = context;
-        this.medicineList = medicineList;
+        this.originalList = medicineList;
+        this.filteredList = new ArrayList<>(medicineList);
     }
 
     @NonNull
@@ -32,7 +35,7 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.Medici
 
     @Override
     public void onBindViewHolder(@NonNull MedicineViewHolder holder, int position) {
-        Medicine medicine = medicineList.get(position);
+        Medicine medicine = filteredList.get(position);
 
         holder.medicineName.setText(medicine.getName());
         holder.medicinePrice.setText("₱" + medicine.getPrice());
@@ -43,13 +46,36 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.Medici
         // Load image with Glide
         Glide.with(context)
                 .load(medicine.getImageUrl())
-                .placeholder(R.drawable.ic_medicine_placeholder) // fallback image
+                .placeholder(R.drawable.ic_medicine_placeholder)
                 .into(holder.medicineImage);
     }
 
     @Override
     public int getItemCount() {
-        return medicineList.size();
+        return filteredList.size();
+    }
+
+    // --- Filtering method ---
+    public void filter(String text) {
+        filteredList.clear();
+        if (text.isEmpty()) {
+            filteredList.addAll(originalList);
+        } else {
+            text = text.toLowerCase();
+            for (Medicine m : originalList) {
+                if (m.getName().toLowerCase().contains(text)) {
+                    filteredList.add(m);
+                }
+            }
+        }
+        notifyDataSetChanged();
+    }
+
+    // --- Add new medicine dynamically ---
+    public void addMedicine(Medicine medicine) {
+        originalList.add(medicine);
+        filteredList.add(medicine);
+        notifyItemInserted(filteredList.size() - 1);
     }
 
     static class MedicineViewHolder extends RecyclerView.ViewHolder {
