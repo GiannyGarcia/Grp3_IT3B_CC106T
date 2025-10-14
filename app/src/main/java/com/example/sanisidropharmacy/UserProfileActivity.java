@@ -6,14 +6,14 @@ import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class CartActivity extends AppCompatActivity {
+public class UserProfileActivity extends AppCompatActivity {
 
     private ImageView navHome, navCart, navUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_cart);
+        setContentView(R.layout.activity_user_profile);
 
         // Initialize bottom nav
         navHome = findViewById(R.id.nav_home);
@@ -27,22 +27,22 @@ public class CartActivity extends AppCompatActivity {
     // Helper method for bottom navigation
     private void setupBottomNav(ImageView home, ImageView cart, ImageView user) {
         home.setOnClickListener(v -> {
-            Intent intent = new Intent(CartActivity.this, CatalogActivity.class);
+            Intent intent = new Intent(UserProfileActivity.this, CatalogActivity.class);
             // Always go back to catalog
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
         });
 
         cart.setOnClickListener(v -> {
-            // Already in CartActivity, but just in case
-            Intent intent = new Intent(CartActivity.this, CartActivity.class);
+            Intent intent = new Intent(UserProfileActivity.this, CartActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
         });
 
         user.setOnClickListener(v -> {
-            Intent intent = new Intent(CartActivity.this, UserProfileActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            // Already in UserProfileActivity, but just in case
+            Intent intent = new Intent(UserProfileActivity.this, UserProfileActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
         });
     }

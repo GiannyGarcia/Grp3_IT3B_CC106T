@@ -1,70 +1,160 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
-    <LinearLayout
+    <!-- Main scrollable content -->
+    <ScrollView
+        android:id="@+id/addProductScrollView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:background="#F8FAF9"
+        android:padding="16dp"
+        android:layout_marginBottom="60dp"> <!-- leave space for bottom nav -->
 
-        <ImageView
-            android:id="@+id/productImageView"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:layout_gravity="center"
-            android:scaleType="centerCrop"
-            android:src="@mipmap/ic_launcher" />
-
-        <Button
-            android:id="@+id/uploadImageButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Upload Image" />
-
-        <EditText
-            android:id="@+id/productNameInput"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Product Name"
-            android:inputType="text" />
+            android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/productPriceInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Price"
-            android:inputType="numberDecimal" />
+            <!-- Header -->
+            <TextView
+                android:id="@+id/addProductTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="16dp"
+                android:text="Product"
+                android:textColor="#2C7A7B"
+                android:textSize="24sp"
+                android:textStyle="bold" />
 
-        <EditText
-            android:id="@+id/productStockInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Stock Quantity"
-            android:inputType="number" />
+            <!-- Card container -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="6dp"
+                android:backgroundTint="@android:color/white"
+                android:padding="16dp">
 
-        <Button
-            android:id="@+id/expiryDateButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Select Expiry Date" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal">
 
-        <Spinner
-            android:id="@+id/categorySpinner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+                    <!-- Product image -->
+                    <ImageView
+                        android:id="@+id/productImageView"
+                        android:layout_width="180dp"
+                        android:layout_height="180dp"
+                        android:layout_marginBottom="8dp"
+                        android:background="@android:drawable/picture_frame"
+                        android:contentDescription="Product image preview"
+                        android:scaleType="centerCrop" />
 
-        <Spinner
-            android:id="@+id/brandSpinner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+                    <Button
+                        android:id="@+id/uploadImageButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Upload Image"
+                        android:textColor="@android:color/white"
+                        android:backgroundTint="#2C7A7B"
+                        android:layout_marginBottom="20dp"/>
 
-        <Button
-            android:id="@+id/saveProductButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Save Product" />
-    </LinearLayout>
-</ScrollView>
+                    <!-- Input fields -->
+                    <EditText
+                        android:id="@+id/productNameInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Product Name"
+                        android:background="@drawable/rounded_input_box"
+                        android:padding="12dp"
+                        android:layout_marginBottom="10dp"/>
+
+                    <EditText
+                        android:id="@+id/productDescriptionInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Description"
+                        android:minLines="3"
+                        android:gravity="top"
+                        android:background="@drawable/rounded_input_box"
+                        android:padding="12dp"
+                        android:layout_marginBottom="10dp"/>
+
+                    <EditText
+                        android:id="@+id/productIntakeInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Intake Instructions (e.g. 1 tablet after meals)"
+                        android:background="@drawable/rounded_input_box"
+                        android:padding="12dp"
+                        android:layout_marginBottom="10dp"/>
+
+                    <EditText
+                        android:id="@+id/productPriceInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Price (₱)"
+                        android:inputType="numberDecimal"
+                        android:background="@drawable/rounded_input_box"
+                        android:padding="12dp"
+                        android:layout_marginBottom="12dp"/>
+
+                    <!-- Expiry date -->
+                    <Button
+                        android:id="@+id/expiryDateButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Select Expiry Date"
+                        android:textColor="@android:color/white"
+                        android:backgroundTint="#2C7A7B"
+                        android:layout_marginBottom="16dp"/>
+
+                    <!-- Dropdowns -->
+                    <Spinner
+                        android:id="@+id/categorySpinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:background="@drawable/rounded_input_box"
+                        android:padding="8dp" />
+
+                    <Spinner
+                        android:id="@+id/brandSpinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rounded_input_box"
+                        android:padding="8dp"
+                        android:layout_marginBottom="16dp"/>
+
+                    <!-- Save button -->
+                    <Button
+                        android:id="@+id/saveProductButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Save Product"
+                        android:textColor="@android:color/white"
+                        android:textStyle="bold"
+                        android:backgroundTint="#2C7A7B"
+                        android:elevation="4dp"
+                        android:padding="14dp"
+                        android:layout_marginTop="10dp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Bottom Navigation include (fixed at bottom) -->
+    <include
+        android:id="@+id/include_bottom_nav"
+        layout="@layout/include_bottom_nav"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_gravity="bottom"/>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
