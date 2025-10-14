@@ -40,11 +40,9 @@ public class LoginActivity extends AppCompatActivity {
             String email = emailInput.getText().toString().trim();
             String password = passwordInput.getText().toString().trim();
 
-            if (!isValidInput(email, password)) {
-                return;
-            }
+            if (!isValidInput(email, password)) return;
 
-            // For now: Use SharedPreferences (later: replace with MySQL API call)
+            // Retrieve saved password
             String savedPassword = sharedPreferences.getString(email + "_password", null);
 
             if (savedPassword == null) {
@@ -57,18 +55,27 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
-            // ✅ Login success
+            // ✅ Login successful
             Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show();
 
-            // Save login session (so user stays logged in)
+            // Save login session
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putBoolean("isLoggedIn", true);
             editor.putString("loggedInUser", email);
             editor.apply();
 
-            // Go to catalog/main activity
-            Intent intent = new Intent(LoginActivity.this, CatalogActivity.class);
-            startActivity(intent);
+            // Handle optional redirect to AddProductActivity
+            boolean redirectToAdd = getIntent().getBooleanExtra("REDIRECT_TO_ADD", false);
+            String categoryName = getIntent().getStringExtra("CATEGORY_NAME");
+
+            Intent nextIntent;
+            if (redirectToAdd && categoryName != null) {
+                nextIntent = new Intent(this, AddProductActivity.class);
+                nextIntent.putExtra("CATEGORY_NAME", categoryName);
+            } else {
+                nextIntent = new Intent(this, CatalogActivity.class);
+            }
+            startActivity(nextIntent);
             finish();
         });
 

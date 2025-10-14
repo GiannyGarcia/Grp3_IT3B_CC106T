@@ -1,12 +1,16 @@
 package com.example.sanisidropharmacy;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.ImageView;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.ArrayList;
 
 public class CategoryDetailsActivity extends AppCompatActivity {
@@ -51,18 +55,26 @@ public class CategoryDetailsActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
-        // FloatingActionButton click — fixed login check
+        // FloatingActionButton click — robust login+redirect logic
         fabAdd.setOnClickListener(v -> {
-            Intent intent;
-            if (!isUserLoggedIn()) {
-                // Go to login page
-                intent = new Intent(this, LoginActivity.class);
+            SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+            boolean loggedIn = prefs.getBoolean("isLoggedIn", false);
+
+            if (!loggedIn) {
+                // Not logged in → go to LoginActivity, pass category for redirect
+                Intent loginIntent = new Intent(this, LoginActivity.class);
+                loginIntent.putExtra("REDIRECT_TO_ADD", true);
+                loginIntent.putExtra("CATEGORY_NAME", categoryName);
+                startActivity(loginIntent);
+
+                // Close this activity to avoid stale state
+                finish();
             } else {
-                // Go to Add Product page with category
-                intent = new Intent(this, AddProductActivity.class);
-                intent.putExtra("CATEGORY_NAME", categoryName);
+                // Already logged in → go to AddProductActivity directly
+                Intent addIntent = new Intent(this, AddProductActivity.class);
+                addIntent.putExtra("CATEGORY_NAME", categoryName);
+                startActivity(addIntent);
             }
-            startActivity(intent);
         });
     }
 
@@ -73,11 +85,11 @@ public class CategoryDetailsActivity extends AppCompatActivity {
     }
 
     private boolean isUserLoggedIn() {
-        return getSharedPreferences("USER_PREFS", MODE_PRIVATE)
+        return getSharedPreferences("user_prefs", MODE_PRIVATE)
                 .getBoolean("isLoggedIn", false);
     }
 
-    // Bottom navigation helper — works consistently
+    // Bottom navigation helper
     private void setupBottomNav(ImageView home, ImageView cart, ImageView user) {
         home.setOnClickListener(v -> {
             Intent intent = new Intent(this, CatalogActivity.class);
