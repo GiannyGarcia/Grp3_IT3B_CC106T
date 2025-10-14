@@ -1,56 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/bottom_nav_container"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/bottom_nav"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="60dp"
+    android:layout_gravity="bottom"
+    android:background="#DD0000"
+    android:elevation="8dp"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:padding="8dp"
+    android:weightSum="3">
 
-    <!-- Bottom navigation bar anchored to bottom -->
-    <LinearLayout
-        android:id="@+id/bottom_nav"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_gravity="bottom|end"
-        android:background="#dd0000"
-        android:elevation="0dp"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:padding="8dp">
+    <!-- Cart button on the LEFT -->
+    <ImageView
+        android:id="@+id/nav_cart"
+        android:layout_width="34dp"
+        android:layout_height="58dp"
+        android:layout_weight="1"
+        android:contentDescription="Cart"
+        android:src="@drawable/ic_cart"
+        android:padding="10dp"
+        android:clickable="true"
+        android:focusable="true" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:background="#DD0000"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:weightSum="3">
+    <!-- Home button at the CENTER -->
+    <ImageView
+        android:id="@+id/nav_home"
+        android:layout_width="34dp"
+        android:layout_height="58dp"
+        android:layout_weight="1"
+        android:contentDescription="Home"
+        android:src="@drawable/ic_home"
+        android:padding="10dp"
+        android:clickable="true"
+        android:focusable="true" />
 
-            <ImageView
-                android:id="@+id/nav_home"
-                android:layout_width="34dp"
-                android:layout_height="58dp"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                android:contentDescription="Home"
-                android:src="@drawable/ic_cart" />
+    <!-- Profile button on the RIGHT -->
+    <ImageView
+        android:id="@+id/nav_user"
+        android:layout_width="34dp"
+        android:layout_height="58dp"
+        android:layout_weight="1"
+        android:contentDescription="Profile"
+        android:src="@drawable/ic_user"
+        android:padding="10dp"
+        android:clickable="true"
+        android:focusable="true" />
 
-            <ImageView
-                android:id="@+id/nav_cart"
-                android:layout_width="34dp"
-                android:layout_height="48dp"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                android:contentDescription="Cart"
-                android:src="@drawable/ic_home" />
-
-            <ImageView
-                android:id="@+id/nav_user"
-                android:layout_width="34dp"
-                android:layout_height="56dp"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                android:contentDescription="Profile"
-                android:src="@drawable/ic_user" />
-        </LinearLayout>
-    </LinearLayout>
-
-</FrameLayout>
+</LinearLayout>

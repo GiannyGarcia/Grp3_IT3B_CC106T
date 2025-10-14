@@ -7,6 +7,7 @@ import android.text.TextWatcher;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
@@ -29,7 +30,7 @@ public class CatalogActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_catalog);
 
-        // 🔹 Initialize Views
+        // Initialize Views
         menuIcon = findViewById(R.id.menu_icon);
         searchBar = findViewById(R.id.search_bar);
         cardPrescription = findViewById(R.id.card_prescription);
@@ -40,79 +41,78 @@ public class CatalogActivity extends AppCompatActivity {
         navCart = findViewById(R.id.nav_cart);
         navUser = findViewById(R.id.nav_user);
 
-        // 🔹 MENU ICON CLICK
-        menuIcon.setOnClickListener(v -> {
-            Intent intent = new Intent(CatalogActivity.this, MenuActivity.class);
-            startActivity(intent);
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        });
+        // Bottom navigation setup
+        setupBottomNav(navHome, navCart, navUser);
 
-        // 🔹 CATEGORY CLICKS — open each category
+        // Menu icon click
+        menuIcon.setOnClickListener(v -> startActivity(new Intent(this, MenuActivity.class)));
+
+        // Category clicks
         cardPrescription.setOnClickListener(v -> openCategory("Prescription Medicines"));
         cardNonPrescription.setOnClickListener(v -> openCategory("Non-Prescription Medicines"));
         cardNonIntake.setOnClickListener(v -> openCategory("Non-Intake Products"));
         cardDevice.setOnClickListener(v -> openCategory("Device or Monitoring Products"));
 
-        // 🔹 BOTTOM NAVIGATION
-        navHome.setOnClickListener(v -> {
-            Intent intent = new Intent(CatalogActivity.this, HomeActivity.class);
-            startActivity(intent);
-            overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-        });
-
-        navCart.setOnClickListener(v -> {
-            Intent intent = new Intent(CatalogActivity.this, CartActivity.class);
-            startActivity(intent);
-            overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-        });
-
-        navUser.setOnClickListener(v -> {
-            Intent intent = new Intent(CatalogActivity.this, UserProfileActivity.class);
-            startActivity(intent);
-            overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-        });
-
-        // 🔹 SEARCH BAR FUNCTIONALITY
+        // Search bar
         searchBar.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                 filterCategories(s.toString().trim());
             }
-
-            @Override
-            public void afterTextChanged(Editable s) { }
+            @Override public void afterTextChanged(Editable s) { }
         });
     }
 
-    // 🔹 Helper function for opening a category
+    // Open selected category
     private void openCategory(String categoryName) {
-        Intent intent = new Intent(CatalogActivity.this, CategoryDetailsActivity.class);
+        Intent intent = new Intent(this, CategoryDetailsActivity.class);
         intent.putExtra("CATEGORY_NAME", categoryName);
         startActivity(intent);
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 
-
-    // 🔹 Simple filtering — show Toast for demo purpose
+    // Search filtering
     private void filterCategories(String query) {
-        if (query.isEmpty()) {
-            // Nothing typed
-            return;
-        }
+        if (query.isEmpty()) return;
 
-        if (query.equalsIgnoreCase("prescription")) {
-            openCategory("Prescription Medicines");
-        } else if (query.equalsIgnoreCase("non-prescription")) {
-            openCategory("Non-Prescription Medicines");
-        } else if (query.equalsIgnoreCase("device")) {
-            openCategory("Device or Monitoring Products");
-        } else if (query.equalsIgnoreCase("non-intake")) {
-            openCategory("Non-Intake Products");
-        } else {
-            Toast.makeText(this, "No matching category found.", Toast.LENGTH_SHORT).show();
+        switch (query.toLowerCase()) {
+            case "prescription":
+                openCategory("Prescription Medicines");
+                break;
+            case "non-prescription":
+                openCategory("Non-Prescription Medicines");
+                break;
+            case "device":
+                openCategory("Device or Monitoring Products");
+                break;
+            case "non-intake":
+                openCategory("Non-Intake Products");
+                break;
+            default:
+                Toast.makeText(this, "No matching category found.", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    // Bottom navigation helper
+    private void setupBottomNav(ImageView home, ImageView cart, ImageView user) {
+        home.setOnClickListener(v -> {
+            // Always go to CatalogActivity
+            Intent intent = new Intent(this, CatalogActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+        });
+
+        cart.setOnClickListener(v -> {
+            // Always go to CartActivity
+            Intent intent = new Intent(this, CartActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+        });
+
+        user.setOnClickListener(v -> {
+            // Always go to UserProfileActivity
+            Intent intent = new Intent(this, UserProfileActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+        });
     }
 }

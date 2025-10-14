@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -29,6 +30,7 @@ public class AddProductActivity extends AppCompatActivity {
     private Button expiryDateButton, saveButton, uploadImageButton;
     private Spinner categorySpinner, brandSpinner;
 
+    private ImageView navHome, navCart, navUser;
     private String expiryDate = "";
     private Uri imageUri = null;
     private String categoryName = "";
@@ -36,12 +38,20 @@ public class AddProductActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // 🔹 Check login
+        if (!isUserLoggedIn()) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_add_product);
 
-        // Get category from previous screen
+        // 🔹 Get category from intent
         categoryName = getIntent().getStringExtra("CATEGORY_NAME");
 
-        // Bind views
+        // 🔹 Initialize product views
         productImageView = findViewById(R.id.productImageView);
         uploadImageButton = findViewById(R.id.uploadImageButton);
         productNameInput = findViewById(R.id.productNameInput);
@@ -53,19 +63,29 @@ public class AddProductActivity extends AppCompatActivity {
         brandSpinner = findViewById(R.id.brandSpinner);
         saveButton = findViewById(R.id.saveProductButton);
 
-        // Category spinner setup (optional, or could be fixed to categoryName)
+        // 🔹 Populate spinners
         String[] categories = {"Prescription", "Non-Prescription", "Non-Intake", "Device"};
-        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, categories);
-        categorySpinner.setAdapter(categoryAdapter);
+        categorySpinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, categories));
 
-        // Brand spinner setup
         String[] brands = {"Generic", "Branded"};
-        ArrayAdapter<String> brandAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, brands);
-        brandSpinner.setAdapter(brandAdapter);
+        brandSpinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, brands));
 
+        // 🔹 Button listeners
         uploadImageButton.setOnClickListener(v -> openImageChooser());
         expiryDateButton.setOnClickListener(v -> showDatePicker());
         saveButton.setOnClickListener(v -> saveProduct());
+
+        // 🔹 Initialize Bottom Navigation from include
+        View bottomNav = findViewById(R.id.include_bottom_nav);
+        navHome = bottomNav.findViewById(R.id.nav_home);
+        navCart = bottomNav.findViewById(R.id.nav_cart);
+        navUser = bottomNav.findViewById(R.id.nav_user);
+        setupBottomNav(navHome, navCart, navUser);
+    }
+
+    private boolean isUserLoggedIn() {
+        return getSharedPreferences("USER_PREFS", MODE_PRIVATE)
+                .getBoolean("isLoggedIn", false);
     }
 
     private void openImageChooser() {
@@ -77,7 +97,6 @@ public class AddProductActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             imageUri = data.getData();
             try {
@@ -90,16 +109,12 @@ public class AddProductActivity extends AppCompatActivity {
     }
 
     private void showDatePicker() {
-        final Calendar c = Calendar.getInstance();
-        int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
-        int day = c.get(Calendar.DAY_OF_MONTH);
-
+        Calendar c = Calendar.getInstance();
         DatePickerDialog datePickerDialog = new DatePickerDialog(this,
-                (DatePicker view, int year1, int month1, int dayOfMonth) -> {
-                    expiryDate = dayOfMonth + "/" + (month1 + 1) + "/" + year1;
+                (DatePicker view, int year, int month, int dayOfMonth) -> {
+                    expiryDate = dayOfMonth + "/" + (month + 1) + "/" + year;
                     expiryDateButton.setText(expiryDate);
-                }, year, month, day);
+                }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
         datePickerDialog.show();
     }
 
@@ -119,28 +134,41 @@ public class AddProductActivity extends AppCompatActivity {
         double price = Double.parseDouble(priceStr);
         Medicine newMedicine = new Medicine(name, desc, intake, price, expiryDate, category, brand, imageUri.toString());
 
-        // Save to appropriate category list
+        // Add product to correct category list
         switch (categoryName) {
-            case "Prescription Medicines":
-                DataStorage.prescriptionList.add(newMedicine);
-                break;
-            case "Non-Prescription Medicines":
-                DataStorage.nonPrescriptionList.add(newMedicine);
-                break;
-            case "Non-Intake Products":
-                DataStorage.nonIntakeList.add(newMedicine);
-                break;
-            case "Device or Monitoring Products":
-                DataStorage.deviceList.add(newMedicine);
-                break;
+            case "Prescription Medicines": DataStorage.prescriptionList.add(newMedicine); break;
+            case "Non-Prescription Medicines": DataStorage.nonPrescriptionList.add(newMedicine); break;
+            case "Non-Intake Products": DataStorage.nonIntakeList.add(newMedicine); break;
+            case "Device or Monitoring Products": DataStorage.deviceList.add(newMedicine); break;
         }
 
         Toast.makeText(this, "Product added to " + categoryName, Toast.LENGTH_SHORT).show();
 
-        // Go back to the same category
+        // Return to CategoryDetailsActivity
         Intent intent = new Intent(AddProductActivity.this, CategoryDetailsActivity.class);
         intent.putExtra("CATEGORY_NAME", categoryName);
         startActivity(intent);
         finish();
+    }
+
+    // 🔹 Bottom navigation helper
+    private void setupBottomNav(ImageView home, ImageView cart, ImageView user) {
+        home.setOnClickListener(v -> {
+            Intent intent = new Intent(this, CatalogActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+        });
+
+        cart.setOnClickListener(v -> {
+            Intent intent = new Intent(this, CartActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+        });
+
+        user.setOnClickListener(v -> {
+            Intent intent = new Intent(this, UserProfileActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+        });
     }
 }

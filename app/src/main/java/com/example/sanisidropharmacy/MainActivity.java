@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
 
         continueBtn.setOnClickListener(v -> {
             // Example: move to LoginActivity after splash screen
-            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            startActivity(new Intent(MainActivity.this, CatalogActivity.class));
             finish();
         });
     }

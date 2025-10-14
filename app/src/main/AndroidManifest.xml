@@ -35,7 +35,6 @@
 
         <activity android:name=".CategoryDetailsActivity" />
 
-        <activity android:name=".HomeActivity" />
         <activity android:name=".CartActivity" />
         <activity android:name=".UserProfileActivity" />
 
