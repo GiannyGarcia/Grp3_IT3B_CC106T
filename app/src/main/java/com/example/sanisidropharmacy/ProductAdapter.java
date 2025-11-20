@@ -4,6 +4,8 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -11,56 +13,109 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.sanisidropharmacy.R;
+import com.example.sanisidropharmacy.Product;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder> {
-    private Context context;
-    private List<Medicine> medicineList;
+public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHolder> implements Filterable {
 
-    public ProductAdapter(Context context, List<Medicine> medicineList) {
+    private final Context context;
+    private final List<Product> productList;
+    private final List<Product> filteredList; // for searching
+
+    public ProductAdapter(Context context, List<Product> productList) {
         this.context = context;
-        this.medicineList = medicineList;
+        this.productList = productList;
+        this.filteredList = new ArrayList<>(productList); // copy for filtering
     }
 
     @NonNull
     @Override
-    public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Inflate the layout that actually exists in res/layout/
-        View view = LayoutInflater.from(context).inflate(R.layout.item_medicine, parent, false);
-        return new ProductViewHolder(view);
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context)
+                .inflate(R.layout.item_product_grid, parent, false);
+        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
-        Medicine med = medicineList.get(position);
-        holder.medicineName.setText(med.getName());
-        holder.medicinePrice.setText("₱" + med.getPrice());
-        holder.prescription.setText("Prescription: " + med.getPrescriptionType());
-        holder.medicineStock.setText("Stock: " + med.getStock());
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        Product product = filteredList.get(position);
 
-        Glide.with(context)
-                .load(med.getImageUrl())
-                .placeholder(android.R.drawable.ic_menu_report_image) // fallback if no custom drawable
-                .into(holder.medicineImage);
+        holder.productName.setText(product.getName());
+        holder.productBrand.setText(product.getBrand() != null ? product.getBrand() : "Unknown Brand");
+        holder.productCategory.setText(product.getCategory() != null ? product.getCategory() : "Uncategorized");
+        holder.productPrice.setText(String.format("₱%.2f", product.getPrice()));
+
+        if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
+            Glide.with(context)
+                    .load(product.getImageUrl())
+                    .placeholder(R.drawable.pm1_amlodipine)
+                    .error(R.drawable.pm1_amlodipine)
+                    .into(holder.productImage);
+        } else {
+            holder.productImage.setImageResource(R.drawable.pm1_amlodipine);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return medicineList.size();
+        return filteredList.size();
     }
 
-    public static class ProductViewHolder extends RecyclerView.ViewHolder {
-        TextView medicineName, medicinePrice, prescription, medicineStock;
-        ImageView medicineImage;
+    public void addProduct(Product product) {
+        productList.add(product);
+        filteredList.add(product);
+        notifyItemInserted(filteredList.size() - 1);
+    }
 
-        public ProductViewHolder(@NonNull View itemView) {
+    // 🔍 FILTERING LOGIC
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                String query = constraint.toString().toLowerCase().trim();
+                List<Product> filtered = new ArrayList<>();
+
+                if (query.isEmpty()) {
+                    filtered.addAll(productList);
+                } else {
+                    for (Product product : productList) {
+                        if (product.getName().toLowerCase().contains(query)
+                                || product.getBrand().toLowerCase().contains(query)
+                                || product.getCategory().toLowerCase().contains(query)) {
+                            filtered.add(product);
+                        }
+                    }
+                }
+
+                FilterResults results = new FilterResults();
+                results.values = filtered;
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                filteredList.clear();
+                filteredList.addAll((List<Product>) results.values);
+                notifyDataSetChanged();
+            }
+        };
+    }
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        ImageView productImage;
+        TextView productName, productBrand, productCategory, productPrice;
+
+        public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            medicineName = itemView.findViewById(R.id.medicineName);
-            medicinePrice = itemView.findViewById(R.id.medicinePrice);
-            prescription = itemView.findViewById(R.id.medicinePrescription);
-            medicineStock = itemView.findViewById(R.id.medicineStock);
-            medicineImage = itemView.findViewById(R.id.medicineImage);
+            productImage = itemView.findViewById(R.id.productImage);
+            productName = itemView.findViewById(R.id.productName);
+            productBrand = itemView.findViewById(R.id.productBrand);
+            productCategory = itemView.findViewById(R.id.productCategory);
+            productPrice = itemView.findViewById(R.id.productPrice);
         }
     }
 }

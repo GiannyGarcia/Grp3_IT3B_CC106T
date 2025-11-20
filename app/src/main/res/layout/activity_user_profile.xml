@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
     tools:context=".UserProfileActivity">
 
-    <!-- Scrollable content -->
+    <!-- Scrollable main content -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp"
         android:clipToPadding="false"
-        android:paddingBottom="80dp"> <!-- Add bottom padding to avoid overlap -->
+        android:padding="16dp"
+        android:layout_marginBottom="80dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -22,26 +22,27 @@
             android:orientation="vertical"
             android:gravity="center_horizontal">
 
-            <!-- Profile Picture -->
+            <!-- Profile image -->
             <ImageView
                 android:id="@+id/profileImage"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="16dp"
                 android:src="@drawable/ic_user_profile"
                 android:background="@drawable/rounded_card_bg"
                 android:scaleType="centerCrop"
-                android:contentDescription="Profile Picture"
-                android:layout_marginBottom="16dp" />
+                android:contentDescription="User profile image" />
 
-            <!-- Name -->
+            <!-- Full name -->
             <TextView
                 android:id="@+id/userName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Juan Dela Cruz"
-                android:textStyle="bold"
                 android:textColor="@color/teal_700"
                 android:textSize="20sp"
+                android:textStyle="bold"
                 android:layout_marginBottom="4dp" />
 
             <!-- Email -->
@@ -50,37 +51,56 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="juan@example.com"
-                android:textSize="14sp"
                 android:textColor="@color/gray"
+                android:textSize="14sp"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Birthdate -->
+            <TextView
+                android:id="@+id/userBirthdate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Birthdate: 2000-01-01"
+                android:textColor="@color/gray"
+                android:textSize="14sp"
                 android:layout_marginBottom="20dp" />
 
-            <!-- Edit / Logout Buttons -->
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E0E0E0"
+                android:layout_marginBottom="20dp" />
+
+            <!-- Edit Profile button -->
             <Button
                 android:id="@+id/btnEditProfile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Edit Profile"
+                android:textAllCaps="false"
                 android:backgroundTint="@color/teal_700"
                 android:textColor="@color/white"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="12dp" />
 
+            <!-- Logout button -->
             <Button
                 android:id="@+id/btnLogout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Logout"
+                android:textAllCaps="false"
                 android:backgroundTint="@color/gray"
-                android:textColor="@color/white" />
-
+                android:textColor="@color/white"
+                android:layout_marginBottom="16dp" />
         </LinearLayout>
     </ScrollView>
 
-    <!-- Bottom Navigation fixed at bottom -->
+    <!-- Fixed bottom navigation -->
     <include
         android:id="@+id/include_bottom_nav"
         layout="@layout/include_bottom_nav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"/>
-
+        android:layout_gravity="bottom" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

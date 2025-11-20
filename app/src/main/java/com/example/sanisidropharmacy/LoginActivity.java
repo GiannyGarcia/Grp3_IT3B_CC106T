@@ -58,11 +58,30 @@ public class LoginActivity extends AppCompatActivity {
             // ✅ Login successful
             Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show();
 
-            // Save login session
+            // Save login session + user profile snapshot
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putBoolean("isLoggedIn", true);
             editor.putString("loggedInUser", email);
+
+// Try to retrieve stored profile fields saved at sign up (keys are: email + "_name", etc.)
+            String savedName = sharedPreferences.getString(email + "_name", null);
+            String savedPhone = sharedPreferences.getString(email + "_phone", null);
+            String savedImageUri = sharedPreferences.getString(email + "_imageUri", null);
+
+// If signup did not save a name, derive a friendly username from the email
+            if (savedName == null || savedName.trim().isEmpty()) {
+                String username = email.contains("@") ? email.substring(0, email.indexOf("@")) : email;
+                savedName = username;
+            }
+
+// Save a simple session snapshot that other screens will read
+            editor.putString("session_name", savedName);
+            editor.putString("session_email", email);
+            if (savedPhone != null) editor.putString("session_phone", savedPhone);
+            if (savedImageUri != null) editor.putString("session_imageUri", savedImageUri);
+
             editor.apply();
+
 
             // Handle optional redirect to AddProductActivity
             boolean redirectToAdd = getIntent().getBooleanExtra("REDIRECT_TO_ADD", false);

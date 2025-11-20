@@ -1,17 +1,21 @@
 package com.example.sanisidropharmacy;
 
 public class Medicine {
+
     private String name;
     private String description;
     private String manufacturer;
     private double price;
     private String expiryDate;
     private String category;
-    private String prescriptionType;
+    private String prescriptionType; // e.g., "Prescription" or "OTC"
     private int stock;
     private String imageUrl;
 
-    // ✅ Full constructor with all attributes
+    // 🔹 New helper field for adapter compatibility (optional thumbnail)
+    private int imageResId = 0;
+
+    // ✅ Full constructor (kept intact)
     public Medicine(String name, String description, String manufacturer, double price,
                     String expiryDate, String category, String prescriptionType, String imageUrl) {
         this.name = name;
@@ -25,7 +29,7 @@ public class Medicine {
         this.imageUrl = imageUrl;
     }
 
-    // ✅ Optional: simple constructor for testing
+    // ✅ Secondary constructor (kept intact)
     public Medicine(String name, double price, int stock, String expiryDate,
                     String category, String manufacturer, String imageUrl) {
         this.name = name;
@@ -39,7 +43,10 @@ public class Medicine {
         this.imageUrl = imageUrl;
     }
 
+    // ✅ Optional no-argument constructor (needed for certain adapters or Firebase)
+    public Medicine() { }
 
+    // ✅ Getters
     public String getName() { return name; }
     public String getDescription() { return description; }
     public String getManufacturer() { return manufacturer; }
@@ -49,7 +56,9 @@ public class Medicine {
     public String getPrescriptionType() { return prescriptionType; }
     public int getStock() { return stock; }
     public String getImageUrl() { return imageUrl; }
+    public int getImageResId() { return imageResId; } // 🔹 for adapter compatibility
 
+    // ✅ Setters
     public void setName(String name) { this.name = name; }
     public void setDescription(String description) { this.description = description; }
     public void setManufacturer(String manufacturer) { this.manufacturer = manufacturer; }
@@ -59,4 +68,18 @@ public class Medicine {
     public void setPrescriptionType(String prescriptionType) { this.prescriptionType = prescriptionType; }
     public void setStock(int stock) { this.stock = stock; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public void setImageResId(int imageResId) { this.imageResId = imageResId; }
+
+    // ✅ New helper for adapter filtering
+    public boolean isPrescription() {
+        if (prescriptionType == null) return false;
+        return prescriptionType.equalsIgnoreCase("Prescription") ||
+                prescriptionType.equalsIgnoreCase("Rx");
+    }
+
+    // ✅ Optional convenience method for debugging/logs
+    @Override
+    public String toString() {
+        return name + " - ₱" + price + " (" + category + ")";
+    }
 }

@@ -88,18 +88,26 @@ public class SignUpActivity extends AppCompatActivity {
             return;
         }
 
-        // Save user locally (SharedPreferences)
+        // ✅ Save user locally (persistent user record)
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(email + "_name", name);
         editor.putString(email + "_email", email);
         editor.putString(email + "_password", password);
         editor.putString(email + "_birthdate", birthDate);
+
+        // ✅ Create a session snapshot for immediate reflection in profile
+        editor.putBoolean("isLoggedIn", true);
+        editor.putString("loggedInUser", email);
+        editor.putString("session_name", name);
+        editor.putString("session_email", email);
+        editor.putString("session_birthdate", birthDate);
         editor.apply();
 
         Toast.makeText(this, "Account created successfully!", Toast.LENGTH_SHORT).show();
 
-        // Go to login
-        startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
+        // ✅ Go directly to CatalogActivity or Profile (choose one)
+        Intent intent = new Intent(SignUpActivity.this, CatalogActivity.class);
+        startActivity(intent);
         finish();
     }
 

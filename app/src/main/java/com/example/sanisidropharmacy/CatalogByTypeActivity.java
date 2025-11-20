@@ -1,8 +1,7 @@
-package com.example.sanisidropharmacy; // adjust package if necessary
+package com.example.sanisidropharmacy; // adapt if needed
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,10 +10,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class CategoryDetailsActivity extends AppCompatActivity {
+public class CatalogByTypeActivity extends AppCompatActivity {
 
     public static final String EXTRA_CATEGORY_NAME = "CATEGORY_NAME";
 
@@ -26,9 +24,9 @@ public class CategoryDetailsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_category_details);
+        setContentView(R.layout.activity_catalog_generic);
 
-        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView = findViewById(R.id.recyclerViewProducts);
         fab = findViewById(R.id.fabAddProduct);
 
         if (getIntent() != null && getIntent().hasExtra(EXTRA_CATEGORY_NAME)) {
@@ -37,26 +35,23 @@ public class CategoryDetailsActivity extends AppCompatActivity {
             categoryName = "";
         }
 
-        // set grid layout manager (2 columns)
-        GridLayoutManager glm = new GridLayoutManager(this, 2);
-        recyclerView.setLayoutManager(glm);
+        // set title text if present
+        findViewById(R.id.title_text).setVisibility(android.view.View.VISIBLE);
+        // set the title text
+        ((android.widget.TextView)findViewById(R.id.title_text)).setText(categoryName);
 
-        loadCategoryProducts();
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        loadProductsForCategory();
 
-        // FAB - open AddProductActivity for this category
-        if (fab != null) {
-            fab.setOnClickListener(v -> {
-                Intent intent = new Intent(CategoryDetailsActivity.this, AddProductActivity.class);
-                intent.putExtra(AddProductActivity.EXTRA_CATEGORY_NAME, categoryName);
-                startActivity(intent);
-            });
-        }
+        fab.setOnClickListener(v -> {
+            Intent intent = new Intent(CatalogByTypeActivity.this, AddProductActivity.class);
+            intent.putExtra(AddProductActivity.EXTRA_CATEGORY_NAME, categoryName);
+            startActivity(intent);
+        });
     }
 
-    private void loadCategoryProducts() {
-        List<Product> productList = new ArrayList<>();
-
-        // Map category name to DataStorage lists. Ensure DataStorage defines these lists as public static.
+    private void loadProductsForCategory() {
+        List<Product> productList;
         switch (categoryName) {
             case "Prescription Medicines":
                 productList = DataStorage.getPrescriptionList();
@@ -71,11 +66,9 @@ public class CategoryDetailsActivity extends AppCompatActivity {
                 productList = DataStorage.getDeviceList();
                 break;
             default:
-                // fallback: empty
-                productList = new ArrayList<>();
+                productList = DataStorage.getAllProducts();
                 break;
         }
-
         adapter = new CatalogAdapter(this, productList);
         recyclerView.setAdapter(adapter);
     }
@@ -83,7 +76,6 @@ public class CategoryDetailsActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // refresh data in case AddProductActivity added a product
         if (adapter != null) adapter.notifyDataSetChanged();
     }
 }

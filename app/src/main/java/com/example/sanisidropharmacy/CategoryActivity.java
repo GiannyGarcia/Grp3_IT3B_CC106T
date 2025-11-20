@@ -35,7 +35,7 @@ public class CategoryActivity extends AppCompatActivity {
         medicineList.add(new Medicine("Paracetamol", 10.0, 50, "2025-12-12", categoryName, "Biogesic", ""));
         medicineList.add(new Medicine("Ibuprofen", 15.0, 40, "2026-03-10", categoryName, "Advil", ""));
 
-        medicineAdapter = new MedicineAdapter(this, medicineList);
+        medicineAdapter = new MedicineAdapter(this, medicineList,null);
         recyclerView.setAdapter(medicineAdapter);
 
         fabAddProduct.setOnClickListener(v -> {

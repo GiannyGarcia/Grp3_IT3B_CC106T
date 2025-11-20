@@ -6,9 +6,9 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.SanIsidroPharmacy">
+        android:theme="@style/Theme.SanIsidroPharmacy.NoActionBar">
 
-        <!-- Login Screen (Launcher) -->
+        <!-- ✅ 1. Main Page (Launcher / Welcome Screen) -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -18,32 +18,27 @@
             </intent-filter>
         </activity>
 
-
-        <!-- Login Screen -->
+        <!-- ✅ 2. Login Screen -->
         <activity android:name=".LoginActivity" />
-        <!-- Sign Up Screen -->
+
+        <!-- ✅ 3. Sign Up Screen -->
         <activity android:name=".SignUpActivity" />
 
-        <!-- Catalog Screen -->
+        <!-- ✅ 4. Main Catalog / Pharmacy UI -->
         <activity android:name=".CatalogActivity" />
 
-        <!-- Forgot Password Screen -->
+        <!-- Other screens (keep as-is) -->
         <activity android:name=".ForgotPasswordActivity" />
-
-
         <activity android:name=".MedicineDetailActivity" />
-
         <activity android:name=".CategoryDetailsActivity" />
-
         <activity android:name=".CartActivity" />
         <activity android:name=".UserProfileActivity" />
-
+        <activity android:name=".CatalogByTypeActivity" />
         <activity android:name=".AddProductActivity" />
-
 
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-
     </application>
+
 </manifest>

@@ -1,6 +1,9 @@
 package com.example.sanisidropharmacy;
 
-public class Product {
+import java.io.Serializable;
+
+public class Product implements Serializable {
+
     private int id;
     private String name;
     private double price;
@@ -11,7 +14,10 @@ public class Product {
     private String prescriptionType;
     private String imageUrl;
 
-    // Constructor
+    // ✅ 1. Default no-argument constructor (needed for AddProductActivity)
+    public Product() { }
+
+    // ✅ 2. Full constructor (your original one — retained for compatibility)
     public Product(int id, String name, double price, int stock, String expiryDate,
                    String category, String brand, String prescriptionType, String imageUrl) {
         this.id = id;
@@ -25,7 +31,7 @@ public class Product {
         this.imageUrl = imageUrl;
     }
 
-    // Getters & Setters
+    // ✅ 3. Getters and setters (unchanged)
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -52,4 +58,19 @@ public class Product {
 
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
+    // ✅ 4. Convenience methods for easier data handling in adapters
+    public boolean isPrescriptionRequired() {
+        return prescriptionType != null && prescriptionType.equalsIgnoreCase("Prescription");
+    }
+
+    public boolean hasImage() {
+        return imageUrl != null && !imageUrl.isEmpty();
+    }
+
+    // ✅ 5. Optional: a quick display string (for adapters or debugging)
+    @Override
+    public String toString() {
+        return name + " (" + category + ") - ₱" + price;
+    }
 }
