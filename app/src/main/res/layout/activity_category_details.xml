@@ -8,12 +8,12 @@
     android:background="#F8F9FA"
     tools:context=".CategoryDetailsActivity">
 
-    <!-- Main Content Wrapper -->
+    <!-- Main Wrapper -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:paddingBottom="80dp"> <!-- Space for bottom navigation -->
+        android:paddingBottom="80dp">
 
         <!-- Top bar -->
         <LinearLayout
@@ -40,7 +40,7 @@
                 android:hint="Search what you need..."
                 android:textColor="#000000"
                 android:textSize="14sp"
-                android:padding="8dp"/>
+                android:padding="8dp" />
 
             <ImageView
                 android:layout_width="24dp"
@@ -60,7 +60,7 @@
             android:textColor="#B71C1C"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:paddingVertical="8dp"/>
+            android:paddingVertical="8dp" />
 
         <!-- Product List -->
         <androidx.recyclerview.widget.RecyclerView
@@ -90,7 +90,7 @@
         app:backgroundTint="@color/teal_700"
         app:tint="@android:color/white" />
 
-    <!-- FIXED BOTTOM NAVIGATION -->
+    <!-- BOTTOM NAVIGATION (Copied from MainActivity) -->
     <LinearLayout
         android:id="@+id/bottom_nav"
         android:layout_width="match_parent"
@@ -106,24 +106,24 @@
             android:layout_width="34dp"
             android:layout_height="58dp"
             android:layout_weight="1"
-            android:src="@drawable/ic_cart"
-            android:contentDescription="Cart" />
+            android:contentDescription="Home"
+            android:src="@drawable/ic_cart" />
 
         <ImageView
             android:id="@+id/nav_home"
             android:layout_width="34dp"
             android:layout_height="48dp"
             android:layout_weight="1"
-            android:src="@drawable/ic_home"
-            android:contentDescription="Home" />
+            android:contentDescription="Cart"
+            android:src="@drawable/ic_home" />
 
         <ImageView
             android:id="@+id/nav_user"
             android:layout_width="34dp"
             android:layout_height="56dp"
             android:layout_weight="1"
-            android:src="@drawable/ic_user"
-            android:contentDescription="Profile" />
+            android:contentDescription="Profile"
+            android:src="@drawable/ic_user" />
 
     </LinearLayout>
 

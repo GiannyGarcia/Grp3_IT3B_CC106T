@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -28,6 +29,8 @@ public class AddProductActivity extends AppCompatActivity {
     private Spinner brandSpinner;
     private Button uploadImageButton, expiryDateButton, saveProductButton;
 
+    private ImageView navCart, navHome, navUser;
+
     private Uri imageUri;
     private String categoryName;
 
@@ -46,11 +49,41 @@ public class AddProductActivity extends AppCompatActivity {
         brandSpinner = findViewById(R.id.brandSpinner);
         saveProductButton = findViewById(R.id.saveProductButton);
 
+        navCart = findViewById(R.id.nav_cart);
+        navHome = findViewById(R.id.nav_home);
+        navUser = findViewById(R.id.nav_user);
+
         if (getIntent() != null && getIntent().hasExtra(EXTRA_CATEGORY_NAME)) {
             categoryName = getIntent().getStringExtra(EXTRA_CATEGORY_NAME);
         } else {
             categoryName = "";
         }
+
+        // Ensure bottom nav is on top and clickable
+        View bottomNav = findViewById(R.id.bottom_nav);
+        if (bottomNav != null) {
+            bottomNav.bringToFront();
+            bottomNav.setClickable(true);
+            bottomNav.setFocusable(true);
+            bottomNav.setFocusableInTouchMode(true);
+        }
+
+        // Wire bottom nav buttons
+        navHome.setOnClickListener(v -> {
+            Intent i = new Intent(AddProductActivity.this, MainActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(i);
+        });
+
+        navCart.setOnClickListener(v -> {
+            Intent i = new Intent(AddProductActivity.this, CartActivity.class);
+            startActivity(i);
+        });
+
+        navUser.setOnClickListener(v -> {
+            Intent i = new Intent(AddProductActivity.this, UserProfileActivity.class);
+            startActivity(i);
+        });
 
         uploadImageButton.setOnClickListener(v -> {
             Intent pick = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -69,47 +102,51 @@ public class AddProductActivity extends AppCompatActivity {
             String desc = productDescriptionInput.getText().toString().trim();
             String intake = productIntakeInput.getText().toString().trim();
             String priceText = productPriceInput.getText().toString().trim();
-            double price = 0;
-            try { price = Double.parseDouble(priceText); } catch (Exception ignored) {}
 
-            // create Product (adapt Product constructor)
-            Product p = new Product();
-            p.setName(name);
-            p.setBrand(brandSpinner.getSelectedItem().toString());
-            p.setPrescriptionType("N/A");
-            p.setPrice(price);
-            p.setCategory(categoryName);
-            // image: you may store URI string or a res id. Here we store Uri string.
-            if (imageUri != null) p.setImageUrl(imageUri.toString());
-
-            // add to DataStorage appropriate list
-            switch (categoryName) {
-                case "Prescription Medicines":
-                    DataStorage.getPrescriptionList().add(p);
-                    break;
-                case "Non-Prescription Medicines":
-                    DataStorage.getNonPrescriptionList().add(p);
-                    break;
-                case "Non-Intake Products":
-                    DataStorage.getNonIntakeList().add(p);
-                    break;
-                case "Device or Monitoring Products":
-                    DataStorage.getDeviceList().add(p);
-                    break;
-                default:
-                    // fallback: add to a general products list
-                    DataStorage.getAllProducts().add(p);
-                    break;
+            if (name.isEmpty()) {
+                Toast.makeText(AddProductActivity.this, "Please enter product name", Toast.LENGTH_SHORT).show();
+                return;
             }
 
-            Toast.makeText(AddProductActivity.this, "Product saved", Toast.LENGTH_SHORT).show();
+            if (priceText.isEmpty()) {
+                Toast.makeText(AddProductActivity.this, "Please enter product price", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-            // go back to category details
-            Intent out = new Intent(AddProductActivity.this, CategoryDetailsActivity.class);
-            out.putExtra(CategoryDetailsActivity.EXTRA_CATEGORY_NAME, categoryName);
-            startActivity(out);
+            // Price formatting
+            String priceDisplay;
+            try {
+                double priceVal = Double.parseDouble(priceText);
+                priceDisplay = String.format("₱%.2f", priceVal);
+            } catch (Exception e) {
+                priceDisplay = priceText; // fallback
+            }
+
+            // Prepare result Intent with product data (CategoryDetailsActivity will receive)
+            Intent out = new Intent();
+            out.putExtra("NEW_PRODUCT_NAME", name);
+            out.putExtra("NEW_PRODUCT_DESC", desc);
+            out.putExtra("NEW_PRODUCT_PRICE", priceDisplay);
+            out.putExtra("NEW_PRODUCT_CATEGORY", categoryName);
+
+            if (imageUri != null) {
+                out.putExtra("NEW_PRODUCT_IMAGE_URI", imageUri.toString());
+            }
+
+            setResult(RESULT_OK, out);
             finish();
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Make sure bottom nav remains clickable after any view changes
+        View bottomNav = findViewById(R.id.bottom_nav);
+        if (bottomNav != null) {
+            bottomNav.bringToFront();
+            bottomNav.setClickable(true);
+        }
     }
 
     @Override
