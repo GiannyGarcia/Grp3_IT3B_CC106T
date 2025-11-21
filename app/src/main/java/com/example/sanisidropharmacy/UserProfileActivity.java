@@ -26,7 +26,6 @@ public class UserProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile);
 
-        // ✅ Initialize views
         userName = findViewById(R.id.userName);
         userEmail = findViewById(R.id.userEmail);
         userBirthdate = findViewById(R.id.userBirthdate);
@@ -34,35 +33,17 @@ public class UserProfileActivity extends AppCompatActivity {
         editProfileButton = findViewById(R.id.btnEditProfile);
         logoutButton = findViewById(R.id.btnLogout);
 
-        // ✅ Load user data from SharedPreferences
-        SharedPreferences prefs = getSharedPreferences(USER_PREFS, Context.MODE_PRIVATE);
-        String name = prefs.getString("session_name", "Guest User");
-        String email = prefs.getString("session_email", "guest@example.com");
-        String birthdate = prefs.getString("session_birthdate", "N/A");
-        String imageUri = prefs.getString("session_imageUri", null);
+        loadUserData();
 
-        // ✅ Display stored values
-        userName.setText(name);
-        userEmail.setText(email);
-        userBirthdate.setText("Birthdate: " + birthdate);
+        // 👉 Open Edit Profile Activity
+        editProfileButton.setOnClickListener(v -> {
+            Intent intent = new Intent(UserProfileActivity.this, EditProfileActivity.class);
+            startActivity(intent);
+        });
 
-        if (imageUri != null && !imageUri.isEmpty()) {
-            try {
-                profileImage.setImageURI(Uri.parse(imageUri));
-            } catch (Exception e) {
-                profileImage.setImageResource(R.drawable.ic_user_profile);
-            }
-        } else {
-            profileImage.setImageResource(R.drawable.ic_user_profile);
-        }
-
-        // ✅ Edit Profile placeholder
-        editProfileButton.setOnClickListener(v ->
-                Toast.makeText(this, "Edit Profile feature coming soon!", Toast.LENGTH_SHORT).show()
-        );
-
-        // ✅ Logout: clear session + redirect to MainActivity
+        // Logout
         logoutButton.setOnClickListener(v -> {
+            SharedPreferences prefs = getSharedPreferences(USER_PREFS, Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = prefs.edit();
             editor.clear();
             editor.apply();
@@ -75,11 +56,37 @@ public class UserProfileActivity extends AppCompatActivity {
             finish();
         });
 
-        // ✅ Keep bottom navigation accessible
         setupBottomNav();
     }
 
-    // ✅ Bottom navigation setup (consistent with all activities)
+    // ⭐ Refresh profile when returning from Edit Profile
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadUserData();
+    }
+
+    // Load data from SharedPreferences
+    private void loadUserData() {
+        SharedPreferences prefs = getSharedPreferences(USER_PREFS, Context.MODE_PRIVATE);
+
+        String name = prefs.getString("session_name", "Guest User");
+        String email = prefs.getString("session_email", "guest@example.com");
+        String birthdate = prefs.getString("session_birthdate", "N/A");
+        String imageUri = prefs.getString("session_imageUri", null);
+
+        userName.setText(name);
+        userEmail.setText(email);
+        userBirthdate.setText("Birthdate: " + birthdate);
+
+        if (imageUri != null) {
+            profileImage.setImageURI(Uri.parse(imageUri));
+        } else {
+            profileImage.setImageResource(R.drawable.ic_user_profile);
+        }
+    }
+
+    // Bottom Navigation
     private void setupBottomNav() {
         LinearLayout bottomNav = findViewById(R.id.include_bottom_nav);
 
@@ -92,7 +99,6 @@ public class UserProfileActivity extends AppCompatActivity {
                 navHome.setOnClickListener(v -> {
                     Intent intent = new Intent(UserProfileActivity.this, CatalogActivity.class);
                     startActivity(intent);
-                    overridePendingTransition(0, 0);
                     finish();
                 });
             }
@@ -101,7 +107,6 @@ public class UserProfileActivity extends AppCompatActivity {
                 navCart.setOnClickListener(v -> {
                     Intent intent = new Intent(UserProfileActivity.this, CartActivity.class);
                     startActivity(intent);
-                    overridePendingTransition(0, 0);
                     finish();
                 });
             }

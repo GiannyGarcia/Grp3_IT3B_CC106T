@@ -234,6 +234,12 @@
                         android:textColor="#D50000"
                         android:textStyle="bold"
                         android:layout_marginTop="4dp" />
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="120dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/nim6" />
                 </LinearLayout>
 
                 <!-- Product 4 -->
@@ -337,12 +343,6 @@
                     android:padding="8dp"
                     android:background="#ffffff"
                     android:layout_marginStart="4dp">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="120dp"
-                        android:src="@drawable/nim6"
-                        android:scaleType="centerCrop" />
 
                     <TextView
                         android:layout_width="match_parent"
