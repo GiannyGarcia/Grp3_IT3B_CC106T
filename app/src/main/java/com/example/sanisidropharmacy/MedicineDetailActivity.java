@@ -1,7 +1,9 @@
 package com.example.sanisidropharmacy;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -14,6 +16,8 @@ public class MedicineDetailActivity extends AppCompatActivity {
     private ImageView detailImage;
     private TextView detailName, detailPrice, detailDescription, detailDosage,
             detailCategory, detailStock, detailPrescription;
+
+    private Button btnAddToCart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +33,8 @@ public class MedicineDetailActivity extends AppCompatActivity {
         detailCategory = findViewById(R.id.detailCategory);
         detailStock = findViewById(R.id.detailStock);
         detailPrescription = findViewById(R.id.detailPrescription);
+
+        btnAddToCart = findViewById(R.id.btnAddToCart);
 
         // Retrieve data
         String name = getIntent().getStringExtra("name");
@@ -57,5 +63,51 @@ public class MedicineDetailActivity extends AppCompatActivity {
         } else {
             detailImage.setImageResource(R.drawable.pharmacy_logo);
         }
+
+        // --------------------------
+        // ADD TO CART FUNCTION
+        // --------------------------
+        btnAddToCart.setOnClickListener(v -> {
+
+            CartModel item = new CartModel(
+                    name,
+                    price,
+                    description,
+                    dosage,
+                    category,
+                    stock,
+                    prescription,
+                    imageUri,
+                    1 // default quantity = 1
+            );
+
+            CartStorage.addToCart(item);
+
+            // Optional: navigate to cart or toast
+            // Toast.makeText(this, "Added to cart!", Toast.LENGTH_SHORT).show();
+        });
+
+        // --------------------------
+        // BOTTOM NAVIGATION CLICK EVENTS
+        // --------------------------
+
+        ImageView navHome = findViewById(R.id.nav_home);
+        ImageView navCart = findViewById(R.id.nav_cart);
+        ImageView navUser = findViewById(R.id.nav_user);
+
+        navHome.setOnClickListener(v -> {
+            Intent i = new Intent(this, CatalogActivity.class);
+            startActivity(i);
+        });
+
+        navCart.setOnClickListener(v -> {
+            Intent i = new Intent(this, CartActivity.class);
+            startActivity(i);
+        });
+
+        navUser.setOnClickListener(v -> {
+            Intent i = new Intent(this, UserProfileActivity.class);
+            startActivity(i);
+        });
     }
 }

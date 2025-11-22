@@ -1,138 +1,80 @@
 package com.example.sanisidropharmacy;
 
-import android.content.Context;
+import android.app.AlertDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.widget.EditText;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.bumptech.glide.Glide;
 
 public class CategoryDetailsActivity extends AppCompatActivity {
 
-    private static final String PREFS_NAME = "PharmacyProducts";
-    private static final String KEY_PRODUCTS = "ProductsList";
+    private ImageView detailImage;
+    private TextView detailName, detailCategory, detailPrice, detailDescription, detailDosage, detailStock;
+    private Button btnAddToCart;
 
-    private RecyclerView recyclerView;
-    private MedicineAdapter adapter;
-    private List<Medicine> productList = new ArrayList<>();
-
-    private TextView tvCategoryTitle;
-    private EditText searchBar;
-    private FloatingActionButton fabAddProduct;
-
-    private ImageView navCart, navHome, navUser;
-
-    private String categoryName = "";
+    private String name, category, price, description, dosage, stock, imageUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_category_details);
 
-        categoryName = getIntent().getStringExtra("selectedCategory");
-        if (categoryName == null) categoryName = "";
+        detailImage = findViewById(R.id.detailImage);
+        detailName = findViewById(R.id.detailName);
+        detailCategory = findViewById(R.id.detailCategory);
+        detailPrice = findViewById(R.id.detailPrice);
+        detailDescription = findViewById(R.id.detailDescription);
+        detailDosage = findViewById(R.id.detailDosage);
+        detailStock = findViewById(R.id.detailStock);
+        btnAddToCart = findViewById(R.id.btnAddToCart);
 
-        recyclerView = findViewById(R.id.recyclerView);
-        tvCategoryTitle = findViewById(R.id.tvCategoryTitle);
-        searchBar = findViewById(R.id.search_bar);
-        fabAddProduct = findViewById(R.id.fabAddProduct);
+        // get data
+        name = getIntent().getStringExtra("name");
+        category = getIntent().getStringExtra("category");
+        price = getIntent().getStringExtra("price");
+        description = getIntent().getStringExtra("description");
+        dosage = getIntent().getStringExtra("dosage");
+        stock = getIntent().getStringExtra("stock");
+        imageUri = getIntent().getStringExtra("image");
 
-        navCart = findViewById(R.id.nav_cart);
-        navHome = findViewById(R.id.nav_home);
-        navUser = findViewById(R.id.nav_user);
+        // assign values
+        detailName.setText(name);
+        detailCategory.setText(category);
+        detailPrice.setText("₱" + price);
+        detailDescription.setText(description);
+        detailDosage.setText("Dosage: " + dosage);
+        detailStock.setText("Stock: " + stock);
 
-        tvCategoryTitle.setText(categoryName);
-
-        loadProducts();
-
-        adapter = new MedicineAdapter(this, productList);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        recyclerView.setAdapter(adapter);
-
-        searchBar.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int i, int i1, int i2) {}
-            @Override public void afterTextChanged(Editable editable) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                filterProducts(s.toString());
-            }
-        });
-
-        fabAddProduct.setOnClickListener(v -> {
-            Intent i = new Intent(CategoryDetailsActivity.this, AddProductActivity.class);
-            i.putExtra("CATEGORY_NAME", categoryName);
-            startActivity(i);
-        });
-
-        navHome.setOnClickListener(v ->
-                startActivity(new Intent(CategoryDetailsActivity.this, MainActivity.class)));
-
-        navCart.setOnClickListener(v ->
-                startActivity(new Intent(CategoryDetailsActivity.this, CartActivity.class)));
-
-        navUser.setOnClickListener(v ->
-                startActivity(new Intent(CategoryDetailsActivity.this, UserProfileActivity.class)));
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        loadProducts(); // reload newly added products
-        adapter.notifyDataSetChanged();
-    }
-
-    private void loadProducts() {
-        productList.clear();
-
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String json = prefs.getString(KEY_PRODUCTS, "[]");
-
-        try {
-            JSONArray arr = new JSONArray(json);
-            for (int i = 0; i < arr.length(); i++) {
-                JSONObject obj = arr.getJSONObject(i);
-                Medicine med = new Medicine(obj);
-
-                if (med.getCategory().equals(categoryName)) {
-                    productList.add(med);
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void filterProducts(String query) {
-        loadProducts();
-
-        String q = query.toLowerCase();
-
-        List<Medicine> filtered = new ArrayList<>();
-        for (Medicine m : productList) {
-            if (m.getName().toLowerCase().contains(q)) {
-                filtered.add(m);
-            }
+        // image
+        if (imageUri != null && !imageUri.isEmpty()) {
+            Glide.with(this)
+                    .load(Uri.parse(imageUri))
+                    .into(detailImage);
+        } else {
+            detailImage.setImageResource(R.drawable.pharmacy_logo);
         }
 
-        productList.clear();
-        productList.addAll(filtered);
-        adapter.notifyDataSetChanged();
+        // add to cart
+        btnAddToCart.setOnClickListener(v -> showQuantityDialog());
+
+        // Bottom nav
+        BottomNavHelper.attach(this);
+    }
+
+    private void showQuantityDialog() {
+        final String[] qtyOptions = {"1", "2", "3", "4", "5"};
+
+        new AlertDialog.Builder(this)
+                .setTitle("Select Quantity")
+                .setItems(qtyOptions, (dialog, which) -> {
+                    String qty = qtyOptions[which];
+                    CartStorage.addToCart(name, price, qty, imageUri, category);
+                })
+                .show();
     }
 }
