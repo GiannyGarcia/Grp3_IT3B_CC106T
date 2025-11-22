@@ -1,36 +1,61 @@
 package com.example.sanisidropharmacy;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
+
 public class MedicineDetailActivity extends AppCompatActivity {
+
+    private ImageView detailImage;
+    private TextView detailName, detailPrice, detailDescription, detailDosage,
+            detailCategory, detailStock, detailPrescription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_medicine_detail);
 
-        ImageView image = findViewById(R.id.detailImage);
-        TextView name = findViewById(R.id.detailName);
-        TextView price = findViewById(R.id.detailPrice);
-        TextView description = findViewById(R.id.detailDescription);
-        TextView dosage = findViewById(R.id.detailDosage);
+        // Bind views
+        detailImage = findViewById(R.id.detailImage);
+        detailName = findViewById(R.id.detailName);
+        detailPrice = findViewById(R.id.detailPrice);
+        detailDescription = findViewById(R.id.detailDescription);
+        detailDosage = findViewById(R.id.detailDosage);
+        detailCategory = findViewById(R.id.detailCategory);
+        detailStock = findViewById(R.id.detailStock);
+        detailPrescription = findViewById(R.id.detailPrescription);
 
-        // Get data from intent safely
-        int imgRes = getIntent().getIntExtra("image", R.drawable.ic_medicine_placeholder); // default image
-        String medName = getIntent().getStringExtra("name");
-        String medPrice = getIntent().getStringExtra("price");
-        String medDescription = getIntent().getStringExtra("description");
-        String medDosage = getIntent().getStringExtra("dosage");
+        // Retrieve data
+        String name = getIntent().getStringExtra("name");
+        String price = getIntent().getStringExtra("price");
+        String description = getIntent().getStringExtra("description");
+        String dosage = getIntent().getStringExtra("dosage");
+        String category = getIntent().getStringExtra("category");
+        int stock = getIntent().getIntExtra("stock", 0);
+        boolean prescription = getIntent().getBooleanExtra("prescription", false);
+        String imageUri = getIntent().getStringExtra("image");
 
-        // Set values safely
-        image.setImageResource(imgRes);
-        name.setText(medName != null ? medName : "Unknown medicine");
-        price.setText(medPrice != null ? medPrice : "N/A");
-        description.setText(medDescription != null ? medDescription : "No description available");
-        dosage.setText("Dosage: " + (medDosage != null ? medDosage : "N/A"));
+        // Set text
+        detailName.setText(name != null ? name : "Unknown medicine");
+        detailPrice.setText(price != null ? "₱" + price : "₱0.00");
+        detailDescription.setText(description != null ? description : "No description available");
+        detailDosage.setText(dosage != null ? dosage : "N/A");
+        detailCategory.setText(category != null ? category : "Unknown Category");
+        detailStock.setText("Stock: " + stock);
+        detailPrescription.setText(prescription ? "Requires prescription" : "OTC");
+
+        // Load image correctly (URI or fallback)
+        if (imageUri != null && !imageUri.isEmpty()) {
+            Glide.with(this)
+                    .load(Uri.parse(imageUri))
+                    .into(detailImage);
+        } else {
+            detailImage.setImageResource(R.drawable.pharmacy_logo);
+        }
     }
 }

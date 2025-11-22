@@ -33,7 +33,6 @@
         <activity android:name=".CategoryDetailsActivity" />
         <activity android:name=".CartActivity" />
         <activity android:name=".UserProfileActivity" />
-        <activity android:name=".CatalogByTypeActivity" />
         <activity android:name=".AddProductActivity" />
         <activity android:name=".EditProfileActivity" />
         <meta-data

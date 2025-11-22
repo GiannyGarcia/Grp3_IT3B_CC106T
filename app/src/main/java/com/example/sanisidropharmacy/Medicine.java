@@ -1,85 +1,71 @@
 package com.example.sanisidropharmacy;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class Medicine {
 
     private String name;
-    private String description;
-    private String manufacturer;
-    private double price;
-    private String expiryDate;
     private String category;
-    private String prescriptionType; // e.g., "Prescription" or "OTC"
+    private String price;
+    private String description;
+    private String dosage;
+    private String imageUrl; // URI string from gallery
     private int stock;
-    private String imageUrl;
+    private boolean prescription;
 
-    // 🔹 New helper field for adapter compatibility (optional thumbnail)
-    private int imageResId = 0;
+    // Full constructor
+    public Medicine(String name, String category, String price,
+                    String description, String dosage,
+                    String imageUrl, int stock, boolean prescription) {
 
-    // ✅ Full constructor (kept intact)
-    public Medicine(String name, String description, String manufacturer, double price,
-                    String expiryDate, String category, String prescriptionType, String imageUrl) {
         this.name = name;
+        this.category = category;
+        this.price = price;
         this.description = description;
-        this.manufacturer = manufacturer;
-        this.price = price;
-        this.expiryDate = expiryDate;
-        this.category = category;
-        this.prescriptionType = prescriptionType;
-        this.stock = 0; // Default stock
+        this.dosage = dosage;
         this.imageUrl = imageUrl;
-    }
-
-    // ✅ Secondary constructor (kept intact)
-    public Medicine(String name, double price, int stock, String expiryDate,
-                    String category, String manufacturer, String imageUrl) {
-        this.name = name;
-        this.description = "";
-        this.manufacturer = manufacturer;
-        this.price = price;
-        this.expiryDate = expiryDate;
-        this.category = category;
-        this.prescriptionType = "N/A";
         this.stock = stock;
-        this.imageUrl = imageUrl;
+        this.prescription = prescription;
     }
 
-    // ✅ Optional no-argument constructor (needed for certain adapters or Firebase)
-    public Medicine() { }
+    // ✅ Constructor from JSON object
+    public Medicine(JSONObject obj) {
+        this.name = obj.optString("name", "");
+        this.category = obj.optString("category", "");
+        this.price = obj.optString("price", "0");
+        this.description = obj.optString("description", "");
+        this.dosage = obj.optString("dosage", "");
+        this.imageUrl = obj.optString("imageUri", "");
+        this.stock = obj.optInt("stock", 0);
+        this.prescription = obj.optBoolean("prescription", false);
+    }
+
+    // ✅ Convert product to JSON (for saving updates later)
+    public JSONObject toJson() {
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("name", name);
+            obj.put("category", category);
+            obj.put("price", price);
+            obj.put("description", description);
+            obj.put("dosage", dosage);
+            obj.put("imageUri", imageUrl);
+            obj.put("stock", stock);
+            obj.put("prescription", prescription);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return obj;
+    }
 
     // ✅ Getters
     public String getName() { return name; }
-    public String getDescription() { return description; }
-    public String getManufacturer() { return manufacturer; }
-    public double getPrice() { return price; }
-    public String getExpiryDate() { return expiryDate; }
     public String getCategory() { return category; }
-    public String getPrescriptionType() { return prescriptionType; }
-    public int getStock() { return stock; }
+    public String getPrice() { return price; }
+    public String getDescription() { return description; }
+    public String getDosage() { return dosage; }
     public String getImageUrl() { return imageUrl; }
-    public int getImageResId() { return imageResId; } // 🔹 for adapter compatibility
-
-    // ✅ Setters
-    public void setName(String name) { this.name = name; }
-    public void setDescription(String description) { this.description = description; }
-    public void setManufacturer(String manufacturer) { this.manufacturer = manufacturer; }
-    public void setPrice(double price) { this.price = price; }
-    public void setExpiryDate(String expiryDate) { this.expiryDate = expiryDate; }
-    public void setCategory(String category) { this.category = category; }
-    public void setPrescriptionType(String prescriptionType) { this.prescriptionType = prescriptionType; }
-    public void setStock(int stock) { this.stock = stock; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
-    public void setImageResId(int imageResId) { this.imageResId = imageResId; }
-
-    // ✅ New helper for adapter filtering
-    public boolean isPrescription() {
-        if (prescriptionType == null) return false;
-        return prescriptionType.equalsIgnoreCase("Prescription") ||
-                prescriptionType.equalsIgnoreCase("Rx");
-    }
-
-    // ✅ Optional convenience method for debugging/logs
-    @Override
-    public String toString() {
-        return name + " - ₱" + price + " (" + category + ")";
-    }
+    public int getStock() { return stock; }
+    public boolean isPrescription() { return prescription; }
 }

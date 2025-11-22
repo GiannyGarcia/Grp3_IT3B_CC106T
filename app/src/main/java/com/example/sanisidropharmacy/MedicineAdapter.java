@@ -1,6 +1,8 @@
-package com.example.sanisidropharmacy; // adjust package if different
+package com.example.sanisidropharmacy;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,72 +12,79 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.List;
 
-public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.MedicineViewHolder> {
+public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.ViewHolder> {
 
-    private final Context context;
-    private final List<Medicine> medicineList;
-    private final OnItemClickListener listener;
+    private Context context;
+    private List<Medicine> medicineList;
 
-    public interface OnItemClickListener {
-        void onItemClick(Medicine medicine);
-    }
-
-    public MedicineAdapter(Context context, List<Medicine> medicineList, OnItemClickListener listener) {
+    public MedicineAdapter(Context context, List<Medicine> medicineList) {
         this.context = context;
         this.medicineList = medicineList;
-        this.listener = listener;
     }
 
     @NonNull
     @Override
-    public MedicineViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(context).inflate(R.layout.item_medicine, parent, false);
-        return new MedicineViewHolder(v);
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.item_medicine_card, parent, false);
+        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MedicineViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Medicine m = medicineList.get(position);
-        if (m == null) return;
 
-        holder.name.setText(m.getName() != null ? m.getName() : "No name");
-        holder.category.setText(m.getCategory() != null ? m.getCategory() : "");
-        holder.price.setText(String.format("₱%.2f", m.getPrice()));
-        holder.stock.setText("Stock: " + m.getStock());
-        holder.prescription.setText(m.isPrescription() ? "Requires prescription" : "OTC");
+        holder.txtName.setText(m.getName());
+        holder.txtCategory.setText(m.getCategory());
+        holder.txtPrice.setText("₱" + m.getPrice());
+        holder.txtStock.setText("Stock: " + m.getStock());
+        holder.txtPrescription.setText(m.isPrescription() ? "Requires prescription" : "OTC");
 
-        // image: if you store drawable names or resource ids, adapt here
-        if (m.getImageResId() != 0) {
-            holder.image.setImageResource(m.getImageResId());
+        if (m.getImageUrl() != null && !m.getImageUrl().isEmpty()) {
+            Glide.with(context)
+                    .load(Uri.parse(m.getImageUrl()))
+                    .into(holder.imgProduct);
         } else {
-            // fallback thumbnail; keep a drawable placeholder in resources
-            holder.image.setImageResource(R.drawable.pharmacy_logo);
+            holder.imgProduct.setImageResource(R.drawable.pharmacy_logo);
         }
 
+        // ✅ Clicking opens MedicineDetailActivity with ALL required data
         holder.itemView.setOnClickListener(v -> {
-            if (listener != null) listener.onItemClick(m);
+            Intent intent = new Intent(context, MedicineDetailActivity.class);
+            intent.putExtra("name", m.getName());
+            intent.putExtra("category", m.getCategory());
+            intent.putExtra("price", m.getPrice());
+            intent.putExtra("description", m.getDescription());
+            intent.putExtra("dosage", m.getDosage());
+            intent.putExtra("image", m.getImageUrl());
+            intent.putExtra("stock", m.getStock());
+            intent.putExtra("prescription", m.isPrescription());
+            context.startActivity(intent);
         });
     }
 
     @Override
     public int getItemCount() {
-        return medicineList == null ? 0 : medicineList.size();
+        return medicineList.size();
     }
 
-    static class MedicineViewHolder extends RecyclerView.ViewHolder {
-        TextView name, category, price, stock, prescription;
-        ImageView image;
+    public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        MedicineViewHolder(@NonNull View itemView) {
+        ImageView imgProduct;
+        TextView txtName, txtCategory, txtPrice, txtStock, txtPrescription;
+
+        public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            name = itemView.findViewById(R.id.medicineName);
-            category = itemView.findViewById(R.id.medicineCategory);
-            price = itemView.findViewById(R.id.medicinePrice);
-            stock = itemView.findViewById(R.id.medicineStock);
-            prescription = itemView.findViewById(R.id.medicinePrescription);
-            image = itemView.findViewById(R.id.medicineImage);
+
+            imgProduct = itemView.findViewById(R.id.imgProduct);
+            txtName = itemView.findViewById(R.id.txtName);
+            txtCategory = itemView.findViewById(R.id.txtCategory);
+            txtPrice = itemView.findViewById(R.id.txtPrice);
+            txtStock = itemView.findViewById(R.id.txtStock);
+            txtPrescription = itemView.findViewById(R.id.txtPrescription);
         }
     }
 }
