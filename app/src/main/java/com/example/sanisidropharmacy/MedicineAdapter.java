@@ -1,8 +1,6 @@
 package com.example.sanisidropharmacy;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,11 +17,23 @@ import java.util.List;
 public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.ViewHolder> {
 
     private Context context;
-    private List<Medicine> medicineList;
+    private List<MedicineModel> medicineList;
+    private OnItemClickListener listener;
 
-    public MedicineAdapter(Context context, List<Medicine> medicineList) {
+    // -------------------------------------------
+    // Constructor
+    // -------------------------------------------
+    public MedicineAdapter(List<MedicineModel> medicineList, Context context, OnItemClickListener listener) {
         this.context = context;
         this.medicineList = medicineList;
+        this.listener = listener;
+    }
+
+    // -------------------------------------------
+    // Interface for item click
+    // -------------------------------------------
+    public interface OnItemClickListener {
+        void onItemClick(MedicineModel item);
     }
 
     @NonNull
@@ -35,7 +45,7 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Medicine m = medicineList.get(position);
+        MedicineModel m = medicineList.get(position);
 
         holder.txtName.setText(m.getName());
         holder.txtCategory.setText(m.getCategory());
@@ -43,26 +53,20 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.ViewHo
         holder.txtStock.setText("Stock: " + m.getStock());
         holder.txtPrescription.setText(m.isPrescription() ? "Requires prescription" : "OTC");
 
-        if (m.getImageUrl() != null && !m.getImageUrl().isEmpty()) {
+        // Load image
+        if (m.getImage() != null && !m.getImage().isEmpty()) {
             Glide.with(context)
-                    .load(Uri.parse(m.getImageUrl()))
+                    .load(m.getImage())
                     .into(holder.imgProduct);
         } else {
             holder.imgProduct.setImageResource(R.drawable.pharmacy_logo);
         }
 
-        // ✅ Clicking opens MedicineDetailActivity with ALL required data
+        // Handle item click
         holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, MedicineDetailActivity.class);
-            intent.putExtra("name", m.getName());
-            intent.putExtra("category", m.getCategory());
-            intent.putExtra("price", m.getPrice());
-            intent.putExtra("description", m.getDescription());
-            intent.putExtra("dosage", m.getDosage());
-            intent.putExtra("image", m.getImageUrl());
-            intent.putExtra("stock", m.getStock());
-            intent.putExtra("prescription", m.isPrescription());
-            context.startActivity(intent);
+            if (listener != null) {
+                listener.onItemClick(m);
+            }
         });
     }
 

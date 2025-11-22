@@ -1,80 +1,100 @@
 package com.example.sanisidropharmacy;
 
-import android.app.AlertDialog;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import androidx.appcompat.app.AppCompatActivity;
 
-import com.bumptech.glide.Glide;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.List;
 
 public class CategoryDetailsActivity extends AppCompatActivity {
 
-    private ImageView detailImage;
-    private TextView detailName, detailCategory, detailPrice, detailDescription, detailDosage, detailStock;
-    private Button btnAddToCart;
-
-    private String name, category, price, description, dosage, stock, imageUri;
+    private RecyclerView recyclerView;
+    private ImageView navHome, navCart, navUser, btnMenu, fabAddProduct;
+    private EditText searchBar;
+    private TextView tvCategoryTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_category_details);
 
-        detailImage = findViewById(R.id.detailImage);
-        detailName = findViewById(R.id.detailName);
-        detailCategory = findViewById(R.id.detailCategory);
-        detailPrice = findViewById(R.id.detailPrice);
-        detailDescription = findViewById(R.id.detailDescription);
-        detailDosage = findViewById(R.id.detailDosage);
-        detailStock = findViewById(R.id.detailStock);
-        btnAddToCart = findViewById(R.id.btnAddToCart);
+        // ----------------------------------------
+        // UI BINDINGS
+        // ----------------------------------------
+        btnMenu = findViewById(R.id.btnMenu);
+        searchBar = findViewById(R.id.search_bar);
+        recyclerView = findViewById(R.id.recyclerView);
 
-        // get data
-        name = getIntent().getStringExtra("name");
-        category = getIntent().getStringExtra("category");
-        price = getIntent().getStringExtra("price");
-        description = getIntent().getStringExtra("description");
-        dosage = getIntent().getStringExtra("dosage");
-        stock = getIntent().getStringExtra("stock");
-        imageUri = getIntent().getStringExtra("image");
+        navHome = findViewById(R.id.nav_home);
+        navCart = findViewById(R.id.nav_cart);
+        navUser = findViewById(R.id.nav_user);
 
-        // assign values
-        detailName.setText(name);
-        detailCategory.setText(category);
-        detailPrice.setText("₱" + price);
-        detailDescription.setText(description);
-        detailDosage.setText("Dosage: " + dosage);
-        detailStock.setText("Stock: " + stock);
+        fabAddProduct = findViewById(R.id.fabAddProduct);
+        tvCategoryTitle = findViewById(R.id.tvCategoryTitle);
 
-        // image
-        if (imageUri != null && !imageUri.isEmpty()) {
-            Glide.with(this)
-                    .load(Uri.parse(imageUri))
-                    .into(detailImage);
-        } else {
-            detailImage.setImageResource(R.drawable.pharmacy_logo);
-        }
+        // ----------------------------------------
+        // FIXED: BOTTOM NAVIGATION
+        // ----------------------------------------
+        navHome.setOnClickListener(v ->
+                startActivity(new Intent(this, CatalogActivity.class)));
 
-        // add to cart
-        btnAddToCart.setOnClickListener(v -> showQuantityDialog());
+        navCart.setOnClickListener(v ->
+                startActivity(new Intent(this, CartActivity.class)));
 
-        // Bottom nav
-        BottomNavHelper.attach(this);
+        navUser.setOnClickListener(v ->
+                startActivity(new Intent(this, UserProfileActivity.class)));
+
+        // ----------------------------------------
+        // FAB ADD PRODUCT (existing AddProductActivity)
+        // ----------------------------------------
+        fabAddProduct.setOnClickListener(v ->
+                startActivity(new Intent(this, AddProductActivity.class)));
+
+        // ----------------------------------------
+        // LOAD CATEGORY NAME FROM INTENT
+        // ----------------------------------------
+        String categoryName = getIntent().getStringExtra("categoryName");
+        tvCategoryTitle.setText(categoryName);   // <-- fixes title sync
+
+        loadCategoryItems(categoryName);
     }
 
-    private void showQuantityDialog() {
-        final String[] qtyOptions = {"1", "2", "3", "4", "5"};
+    // -------------------------------------------
+    // LOAD MEDICINES FOR THIS CATEGORY
+    // -------------------------------------------
+    private void loadCategoryItems(String category) {
 
-        new AlertDialog.Builder(this)
-                .setTitle("Select Quantity")
-                .setItems(qtyOptions, (dialog, which) -> {
-                    String qty = qtyOptions[which];
-                    CartStorage.addToCart(name, price, qty, imageUri, category);
-                })
-                .show();
+        // FIXED: use SampleData (the real existing datasource)
+        List<MedicineModel> medicineList = SampleData.getMedicinesByCategory(category);
+
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+
+        // FIXED: Adapter now uses correct constructor
+        MedicineAdapter adapter = new MedicineAdapter(
+                medicineList,
+                this,
+                item -> {
+
+                    Intent i = new Intent(CategoryDetailsActivity.this, MedicineDetailActivity.class);
+                    i.putExtra("name", item.getName());
+                    i.putExtra("price", item.getPrice());
+                    i.putExtra("description", item.getDescription());
+                    i.putExtra("dosage", item.getDosage());
+                    i.putExtra("category", item.getCategory());
+                    i.putExtra("stock", item.getStock());
+                    i.putExtra("prescription", item.isPrescription());
+                    i.putExtra("image", item.getImage()); // IMPORTANT FIX
+
+                    startActivity(i);
+                });
+
+        recyclerView.setAdapter(adapter);
     }
 }

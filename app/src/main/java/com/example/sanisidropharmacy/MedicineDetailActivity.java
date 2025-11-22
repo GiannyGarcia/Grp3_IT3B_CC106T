@@ -16,7 +16,6 @@ public class MedicineDetailActivity extends AppCompatActivity {
     private ImageView detailImage;
     private TextView detailName, detailPrice, detailDescription, detailDosage,
             detailCategory, detailStock, detailPrescription;
-
     private Button btnAddToCart;
 
     @Override
@@ -24,7 +23,9 @@ public class MedicineDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_medicine_detail);
 
-        // Bind views
+        // -----------------------------
+        // VIEW BINDINGS
+        // -----------------------------
         detailImage = findViewById(R.id.detailImage);
         detailName = findViewById(R.id.detailName);
         detailPrice = findViewById(R.id.detailPrice);
@@ -33,10 +34,11 @@ public class MedicineDetailActivity extends AppCompatActivity {
         detailCategory = findViewById(R.id.detailCategory);
         detailStock = findViewById(R.id.detailStock);
         detailPrescription = findViewById(R.id.detailPrescription);
-
         btnAddToCart = findViewById(R.id.btnAddToCart);
 
-        // Retrieve data
+        // -----------------------------
+        // GET DATA FROM INTENT
+        // -----------------------------
         String name = getIntent().getStringExtra("name");
         String price = getIntent().getStringExtra("price");
         String description = getIntent().getStringExtra("description");
@@ -46,27 +48,27 @@ public class MedicineDetailActivity extends AppCompatActivity {
         boolean prescription = getIntent().getBooleanExtra("prescription", false);
         String imageUri = getIntent().getStringExtra("image");
 
-        // Set text
-        detailName.setText(name != null ? name : "Unknown medicine");
+        // -----------------------------
+        // SET UI VALUES
+        // -----------------------------
+        detailName.setText(name != null ? name : "Unknown");
         detailPrice.setText(price != null ? "₱" + price : "₱0.00");
-        detailDescription.setText(description != null ? description : "No description available");
-        detailDosage.setText(dosage != null ? dosage : "N/A");
+        detailDescription.setText(description != null ? description : "No description available.");
+        detailDosage.setText("Dosage: " + (dosage != null ? dosage : "N/A"));
         detailCategory.setText(category != null ? category : "Unknown Category");
         detailStock.setText("Stock: " + stock);
-        detailPrescription.setText(prescription ? "Requires prescription" : "OTC");
+        detailPrescription.setText(prescription ? "Requires Prescription" : "OTC");
 
-        // Load image correctly (URI or fallback)
+        // Load image safely
         if (imageUri != null && !imageUri.isEmpty()) {
-            Glide.with(this)
-                    .load(Uri.parse(imageUri))
-                    .into(detailImage);
+            Glide.with(this).load(Uri.parse(imageUri)).into(detailImage);
         } else {
             detailImage.setImageResource(R.drawable.pharmacy_logo);
         }
 
-        // --------------------------
-        // ADD TO CART FUNCTION
-        // --------------------------
+        // -----------------------------
+        // ADD TO CART LOGIC
+        // -----------------------------
         btnAddToCart.setOnClickListener(v -> {
 
             CartModel item = new CartModel(
@@ -78,36 +80,26 @@ public class MedicineDetailActivity extends AppCompatActivity {
                     stock,
                     prescription,
                     imageUri,
-                    1 // default quantity = 1
+                    1  // default qty
             );
 
             CartStorage.addToCart(item);
-
-            // Optional: navigate to cart or toast
-            // Toast.makeText(this, "Added to cart!", Toast.LENGTH_SHORT).show();
         });
 
-        // --------------------------
-        // BOTTOM NAVIGATION CLICK EVENTS
-        // --------------------------
-
+        // -----------------------------
+        // BOTTOM NAVIGATION
+        // -----------------------------
         ImageView navHome = findViewById(R.id.nav_home);
         ImageView navCart = findViewById(R.id.nav_cart);
         ImageView navUser = findViewById(R.id.nav_user);
 
-        navHome.setOnClickListener(v -> {
-            Intent i = new Intent(this, CatalogActivity.class);
-            startActivity(i);
-        });
+        navHome.setOnClickListener(v ->
+                startActivity(new Intent(this, CatalogActivity.class)));
 
-        navCart.setOnClickListener(v -> {
-            Intent i = new Intent(this, CartActivity.class);
-            startActivity(i);
-        });
+        navCart.setOnClickListener(v ->
+                startActivity(new Intent(this, CartActivity.class)));
 
-        navUser.setOnClickListener(v -> {
-            Intent i = new Intent(this, UserProfileActivity.class);
-            startActivity(i);
-        });
+        navUser.setOnClickListener(v ->
+                startActivity(new Intent(this, UserProfileActivity.class)));
     }
 }

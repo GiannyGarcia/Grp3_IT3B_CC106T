@@ -5,45 +5,64 @@ import java.util.List;
 
 public class DataStorage {
 
-    // ✅ Static lists that hold products per category
-    private static final List<Product> prescriptionList = new ArrayList<>();
-    private static final List<Product> nonPrescriptionList = new ArrayList<>();
-    private static final List<Product> nonIntakeList = new ArrayList<>();
-    private static final List<Product> deviceList = new ArrayList<>();
-    private static final List<Product> allProducts = new ArrayList<>();
+    private static final List<MedicineModel> prescriptionList = new ArrayList<>();
+    private static final List<MedicineModel> nonPrescriptionList = new ArrayList<>();
+    private static final List<MedicineModel> nonIntakeList = new ArrayList<>();
+    private static final List<MedicineModel> deviceList = new ArrayList<>();
 
-    // ✅ Getter methods used across activities
-    public static List<Product> getPrescriptionList() { return prescriptionList; }
-    public static List<Product> getNonPrescriptionList() { return nonPrescriptionList; }
-    public static List<Product> getNonIntakeList() { return nonIntakeList; }
-    public static List<Product> getDeviceList() { return deviceList; }
-    public static List<Product> getAllProducts() { return allProducts; }
+    // Return lists (live)
+    public static List<MedicineModel> getPrescriptionList() { return prescriptionList; }
+    public static List<MedicineModel> getNonPrescriptionList() { return nonPrescriptionList; }
+    public static List<MedicineModel> getNonIntakeList() { return nonIntakeList; }
+    public static List<MedicineModel> getDeviceList() { return deviceList; }
 
-    // ✅ Optional helper: automatically sync product to correct category
-    public static void addProduct(Product product) {
-        if (product == null) return;
-
-        switch (product.getCategory()) {
-            case "Prescription Medicines":
-                prescriptionList.add(product);
+    // Helper to add product by category name
+    public static void addProduct(String category, MedicineModel item) {
+        if (category == null || item == null) return;
+        switch (category.toLowerCase()) {
+            case "prescription medicines":
+            case "prescription":
+                prescriptionList.add(item);
                 break;
-            case "Non-Prescription Medicines":
-                nonPrescriptionList.add(product);
+            case "non-prescription medicines":
+            case "non-prescription":
+                nonPrescriptionList.add(item);
                 break;
-            case "Non-Intake Products":
-                nonIntakeList.add(product);
+            case "non-intake products":
+            case "non-intake":
+                nonIntakeList.add(item);
                 break;
-            case "Device or Monitoring Products":
-                deviceList.add(product);
+            case "device or monitoring products":
+            case "device":
+            case "monitoring":
+                deviceList.add(item);
                 break;
             default:
-                allProducts.add(product);
+                // fallback: put into nonPrescriptionList
+                nonPrescriptionList.add(item);
                 break;
         }
+    }
 
-        // keep master list synced
-        if (!allProducts.contains(product)) {
-            allProducts.add(product);
+    // Convenience: get by category string
+    public static List<MedicineModel> getProductsForCategory(String category) {
+        if (category == null) return new ArrayList<>();
+        switch (category.toLowerCase()) {
+            case "prescription medicines":
+            case "prescription":
+                return prescriptionList;
+            case "non-prescription medicines":
+            case "non-prescription":
+                return nonPrescriptionList;
+            case "non-intake products":
+            case "non-intake":
+                return nonIntakeList;
+            case "device or monitoring products":
+            case "device":
+            case "monitoring":
+                return deviceList;
+            default:
+                return new ArrayList<>();
         }
     }
 }

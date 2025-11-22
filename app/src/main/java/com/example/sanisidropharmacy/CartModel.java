@@ -1,15 +1,29 @@
 package com.example.sanisidropharmacy;
 
-public class CartModel {
+import java.io.Serializable;
+import java.util.Objects;
 
-    private String name, price, description, dosage, category, imageUrl;
+/**
+ * Model representing an item in the cart.
+ * Fields kept identical to your original design.
+ */
+public class CartModel implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    private String name;
+    private String price;
+    private String description;
+    private String dosage;
+    private String category;
     private int stock;
     private boolean prescription;
-    private int quantity;
+    private String image;
+    private int qty;
 
     public CartModel(String name, String price, String description, String dosage,
                      String category, int stock, boolean prescription,
-                     String imageUrl, int quantity) {
+                     String image, int qty) {
 
         this.name = name;
         this.price = price;
@@ -18,11 +32,11 @@ public class CartModel {
         this.category = category;
         this.stock = stock;
         this.prescription = prescription;
-        this.imageUrl = imageUrl;
-        this.quantity = quantity;
+        this.image = image;
+        this.qty = Math.max(0, qty);
     }
 
-    // getters only
+    // --- Getters ---
     public String getName() { return name; }
     public String getPrice() { return price; }
     public String getDescription() { return description; }
@@ -30,6 +44,47 @@ public class CartModel {
     public String getCategory() { return category; }
     public int getStock() { return stock; }
     public boolean isPrescription() { return prescription; }
-    public String getImageUrl() { return imageUrl; }
-    public int getQuantity() { return quantity; }
+    public String getImage() { return image; }
+    public int getQty() { return qty; }
+
+    // --- Setters where sensible ---
+    public void setQty(int qty) { this.qty = Math.max(0, qty); }
+
+    // Convenience helpers
+    public void incrementQty() {
+        if (qty < stock) this.qty++;
+    }
+
+    public void decrementQty() {
+        if (qty > 0) this.qty--;
+    }
+
+    // Useful for merging items in cart: define identity (adjust if needed)
+    // Currently uses name + category + image as identity
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CartModel)) return false;
+        CartModel that = (CartModel) o;
+        return Objects.equals(name, that.name)
+                && Objects.equals(category, that.category)
+                && Objects.equals(image, that.image);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, category, image);
+    }
+
+    @Override
+    public String toString() {
+        return "CartModel{" +
+                "name='" + name + '\'' +
+                ", price='" + price + '\'' +
+                ", qty=" + qty +
+                ", category='" + category + '\'' +
+                ", stock=" + stock +
+                ", prescription=" + prescription +
+                '}';
+    }
 }
