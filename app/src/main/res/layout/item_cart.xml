@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    android:foreground="?attr/selectableItemBackground"
+    android:elevation="4dp"
+    android:padding="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- PRODUCT IMAGE -->
+        <ImageView
+            android:id="@+id/cartImage"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/pharmacy_logo"
+            android:layout_marginEnd="10dp"/>
+
+        <!-- TEXT CONTENT -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/cartItemName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Medicine Name"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#000000"/>
+
+            <TextView
+                android:id="@+id/cartItemPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₱0.00"
+                android:textSize="15sp"
+                android:textColor="#444444"
+                android:paddingTop="3dp"/>
+
+            <!-- QUANTITY -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="6dp">
+
+                <ImageView
+                    android:id="@+id/btnMinus"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:src="@drawable/ic_minus"
+                    android:padding="4dp"
+                    android:background="#EEEEEE"/>
+
+                <TextView
+                    android:id="@+id/cartItemQty"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="1"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:paddingHorizontal="8dp"/>
+
+                <ImageView
+                    android:id="@+id/btnPlus"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:src="@drawable/ic_plus"
+                    android:padding="4dp"
+                    android:background="#EEEEEE"/>
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- DELETE BUTTON -->
+        <ImageView
+            android:id="@+id/btnDelete"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_gravity="top"
+            android:src="@drawable/ic_delete"
+            android:padding="4dp"/>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

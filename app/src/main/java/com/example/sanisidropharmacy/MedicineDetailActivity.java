@@ -80,11 +80,16 @@ public class MedicineDetailActivity extends AppCompatActivity {
                     stock,
                     prescription,
                     imageUri,
-                    1  // default qty
+                    1
             );
 
             CartStorage.addToCart(item);
+
+            // Move to cart screen
+            Intent goToCart = new Intent(this, CartActivity.class);
+            startActivity(goToCart);
         });
+
 
         // -----------------------------
         // BOTTOM NAVIGATION

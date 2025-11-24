@@ -1,58 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
     tools:context=".CartActivity">
 
-    <!-- Main content wrapped in NestedScrollView in case content grows -->
+    <!-- MAIN SCROLL CONTENT ABOVE NAV -->
     <ScrollView
+        android:id="@+id/scrollContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="60dp"> <!-- margin to avoid bottom nav overlap -->
+        android:layout_above="@+id/bottom_nav"
+        android:padding="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:orientation="vertical">
 
+            <!-- TITLE -->
             <TextView
                 android:id="@+id/cartTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingBottom="12dp"
                 android:text="My Cart"
-                android:textColor="@color/Green"
                 android:textSize="22sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="@color/Green"
+                android:paddingBottom="12dp"/>
 
-            <TextView
-                android:id="@+id/cartMessage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingBottom="20dp"
-                android:text="Your cart is currently empty."
-                android:textColor="@color/black"
-                android:textSize="16sp" />
-
-            <ImageView
-                android:id="@+id/cartImage"
+            <!-- EMPTY CART LAYOUT -->
+            <LinearLayout
+                android:id="@+id/emptyLayout"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:contentDescription="Empty cart illustration"
-                android:scaleType="fitCenter"
-                android:src="@drawable/empty_cart" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="20dp">
+
+                <TextView
+                    android:id="@+id/emptyMessage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Your cart is currently empty."
+                    android:textSize="16sp"
+                    android:textColor="@color/black"
+                    android:paddingBottom="20dp"/>
+
+                <ImageView
+                    android:id="@+id/emptyIllustration"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:src="@drawable/empty_cart"
+                    android:scaleType="fitCenter"/>
+            </LinearLayout>
+
+            <!-- ITEMS LIST -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerCart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                tools:listitem="@layout/item_cart" />
+
+            <!-- TOTAL PRICE -->
+            <TextView
+                android:id="@+id/txtTotalAmount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="₱0.00"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:paddingTop="20dp"
+                android:paddingBottom="10dp"/>
 
         </LinearLayout>
     </ScrollView>
 
-    <!-- Bottom Navigation fixed at the bottom -->
+    <!-- BOTTOM NAVIGATION ALWAYS FIXED -->
     <include
-        android:id="@+id/include_bottom_nav"
-        layout="@layout/include_bottom_nav"/>
+        android:id="@+id/bottom_nav"
+        layout="@layout/include_bottom_nav"
+        android:layout_alignParentBottom="true"/>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</RelativeLayout>

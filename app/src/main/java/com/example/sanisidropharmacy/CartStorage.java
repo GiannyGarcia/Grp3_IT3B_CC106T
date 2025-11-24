@@ -7,55 +7,42 @@ public class CartStorage {
 
     private static final List<CartModel> cartList = new ArrayList<>();
 
-    /**
-     * Adds an item to the cart. If the item already exists (same name + category + image),
-     * merge quantities instead of creating duplicates.
-     */
+    /** Add item to cart */
     public static void addToCart(CartModel newItem) {
 
         for (CartModel item : cartList) {
-            if (item.equals(newItem)) {
+            if (item.getName().equals(newItem.getName())) {
 
-                // If same product exists → increase qty
-                int updatedQty = item.getQty() + newItem.getQty();
+                int newQty = item.getQty() + newItem.getQty();
 
-                // Cap by stock
-                if (updatedQty > item.getStock()) {
-                    updatedQty = item.getStock();
-                }
+                if (newQty > item.getStock()) newQty = item.getStock();
 
-                item.setQty(updatedQty);
-                return; // Finished
+                item.setQty(newQty);
+                return;
             }
         }
 
-        // If not found → add as new entry
         cartList.add(newItem);
     }
 
-    /** Get complete cart */
+    /** Get all cart items */
     public static List<CartModel> getCart() {
         return cartList;
     }
 
-    /** Clear cart */
-    public static void clearCart() {
-        cartList.clear();
-    }
-
-    /** Remove one item from cart */
+    /** Remove item */
     public static void removeItem(CartModel item) {
         cartList.remove(item);
     }
 
-    /** Update quantity manually */
+    /** Update quantity (+/-) */
     public static void updateQty(CartModel item, int newQty) {
-        if (newQty < 0) newQty = 0;
+        if (newQty < 1) newQty = 1;  // prevent zero or negative quantity
         if (newQty > item.getStock()) newQty = item.getStock();
         item.setQty(newQty);
     }
 
-    /** Calculate total price of cart */
+    /** Calculate total */
     public static double getTotalCost() {
         double total = 0;
         for (CartModel item : cartList) {

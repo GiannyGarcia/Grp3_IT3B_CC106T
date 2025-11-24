@@ -62,19 +62,27 @@ public class CartModel implements Serializable {
     // Useful for merging items in cart: define identity (adjust if needed)
     // Currently uses name + category + image as identity
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof CartModel)) return false;
-        CartModel that = (CartModel) o;
-        return Objects.equals(name, that.name)
-                && Objects.equals(category, that.category)
-                && Objects.equals(image, that.image);
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof CartModel)) return false;
+
+        CartModel other = (CartModel) obj;
+
+        // Products are considered the same if name + category + image match
+        return name.equals(other.name)
+                && category.equals(other.category)
+                && ((image == null && other.image == null)
+                || (image != null && image.equals(other.image)));
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, category, image);
+        int result = name.hashCode();
+        result = 31 * result + category.hashCode();
+        result = 31 * result + (image != null ? image.hashCode() : 0);
+        return result;
     }
+
 
     @Override
     public String toString() {
