@@ -56,9 +56,7 @@ public class CartActivity extends AppCompatActivity {
         recyclerCart.setVisibility(View.VISIBLE);
         emptyLayout.setVisibility(View.GONE);
 
-        CartAdapter adapter = new CartAdapter(cartItems, this, updatedItem -> {
-            updateTotalPrice();
-        });
+        CartAdapter adapter = new CartAdapter(cartItems, this, () -> updateTotalPrice());
 
         recyclerCart.setAdapter(adapter);
         updateTotalPrice();
