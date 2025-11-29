@@ -121,7 +121,37 @@
             android:drawableEnd="@android:drawable/ic_menu_my_calendar"
             android:layout_marginBottom="24dp" />
 
-        <!-- Sign Up Button (ID was missing earlier — it's here) -->
+        <!-- ⭐ NEW: Account Type -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ACCOUNT TYPE"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="6dp" />
+
+        <RadioGroup
+            android:id="@+id/accountTypeGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="24dp">
+
+            <RadioButton
+                android:id="@+id/userRadio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="User"
+                android:checked="true" />
+
+            <RadioButton
+                android:id="@+id/adminRadio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Admin" />
+        </RadioGroup>
+
+        <!-- Sign Up Button -->
         <Button
             android:id="@+id/signupButton"
             android:layout_width="match_parent"

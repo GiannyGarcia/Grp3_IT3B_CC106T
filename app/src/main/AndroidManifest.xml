@@ -1,5 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -8,7 +10,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SanIsidroPharmacy.NoActionBar">
 
-        <!-- ✅ 1. Main Page (Launcher / Welcome Screen) -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -18,16 +19,12 @@
             </intent-filter>
         </activity>
 
-        <!-- ✅ 2. Login Screen -->
         <activity android:name=".LoginActivity" />
 
-        <!-- ✅ 3. Sign Up Screen -->
         <activity android:name=".SignUpActivity" />
 
-        <!-- ✅ 4. Main Catalog / Pharmacy UI -->
         <activity android:name=".CatalogActivity" />
 
-        <!-- Other screens (keep as-is) -->
         <activity android:name=".ForgotPasswordActivity" />
         <activity android:name=".MedicineDetailActivity" />
         <activity android:name=".CategoryDetailsActivity" />
@@ -35,6 +32,15 @@
         <activity android:name=".UserProfileActivity" />
         <activity android:name=".AddProductActivity" />
         <activity android:name=".EditProfileActivity" />
+        <activity android:name=".ProductPostActivity" />
+        <activity android:name=".UserViewActivity" />
+        <activity android:name=".InventoryTrackerActivity" />
+        <activity android:name=".CheckoutActivity" />
+        <activity android:name=".OrderConfirmationActivity" />
+
+
+
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

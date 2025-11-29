@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +22,10 @@ public class SignUpActivity extends AppCompatActivity {
     private EditText nameInput, emailInput, passwordInput, birthDateInput;
     private Button signupButton;
     private TextView loginRedirect;
+
+    // ⭐ NEW: Role selector
+    private RadioGroup accountTypeGroup;
+    private RadioButton userRadio, adminRadio;
 
     private SharedPreferences sharedPreferences;
     private static final String USER_PREFS = "user_prefs";
@@ -36,6 +42,11 @@ public class SignUpActivity extends AppCompatActivity {
         birthDateInput = findViewById(R.id.birthDateInput);
         signupButton = findViewById(R.id.signupButton);
         loginRedirect = findViewById(R.id.loginRedirect);
+
+        // ⭐ NEW: Role
+        accountTypeGroup = findViewById(R.id.accountTypeGroup);
+        userRadio = findViewById(R.id.userRadio);
+        adminRadio = findViewById(R.id.adminRadio);
 
         sharedPreferences = getSharedPreferences(USER_PREFS, Context.MODE_PRIVATE);
 
@@ -57,6 +68,9 @@ public class SignUpActivity extends AppCompatActivity {
         String email = emailInput.getText().toString().trim();
         String password = passwordInput.getText().toString().trim();
         String birthDate = birthDateInput.getText().toString().trim();
+
+        // ⭐ NEW: Get Role
+        String role = userRadio.isChecked() ? "User" : "Admin";
 
         // Field validation
         if (name.isEmpty() || email.isEmpty() || password.isEmpty() || birthDate.isEmpty()) {
@@ -88,26 +102,32 @@ public class SignUpActivity extends AppCompatActivity {
             return;
         }
 
-        // ✅ Save user locally (persistent user record)
+        // Save user
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(email + "_name", name);
         editor.putString(email + "_email", email);
         editor.putString(email + "_password", password);
         editor.putString(email + "_birthdate", birthDate);
+        editor.putString(email + "_role", role); // ⭐ NEW: Save role
 
-        // ✅ Create a session snapshot for immediate reflection in profile
+        // Session data
         editor.putBoolean("isLoggedIn", true);
         editor.putString("loggedInUser", email);
         editor.putString("session_name", name);
         editor.putString("session_email", email);
         editor.putString("session_birthdate", birthDate);
+        editor.putString("session_role", role); // ⭐ NEW: Save role in session
         editor.apply();
 
         Toast.makeText(this, "Account created successfully!", Toast.LENGTH_SHORT).show();
 
-        // ✅ Go directly to CatalogActivity or Profile (choose one)
-        Intent intent = new Intent(SignUpActivity.this, CatalogActivity.class);
-        startActivity(intent);
+        // ⭐ Optional: Redirect based on role
+        if (role.equals("Admin")) {
+            startActivity(new Intent(SignUpActivity.this, ProductPostActivity.class));
+        } else {
+            startActivity(new Intent(SignUpActivity.this, CatalogActivity.class));
+        }
+
         finish();
     }
 
@@ -118,7 +138,6 @@ public class SignUpActivity extends AppCompatActivity {
         int day = calendar.get(Calendar.DAY_OF_MONTH);
 
         DatePickerDialog dialog = new DatePickerDialog(this, (DatePicker view, int y, int m, int d) -> {
-            // Save as yyyy-MM-dd for DB compatibility
             String date = y + "-" + (m + 1) + "-" + d;
             birthDateInput.setText(date);
         }, year, month, day);
@@ -128,7 +147,6 @@ public class SignUpActivity extends AppCompatActivity {
 
     private boolean isAtLeast18(String birthDate) {
         try {
-            // Format: yyyy-MM-dd
             String[] parts = birthDate.split("-");
             int year = Integer.parseInt(parts[0]);
             int month = Integer.parseInt(parts[1]) - 1;
@@ -149,7 +167,7 @@ public class SignUpActivity extends AppCompatActivity {
             return age >= 18;
 
         } catch (Exception e) {
-            return false; // Invalid format
+            return false;
         }
     }
 }

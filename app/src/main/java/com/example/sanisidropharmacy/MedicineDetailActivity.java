@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast; // ⭐ NEW IMPORT
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -17,6 +18,12 @@ public class MedicineDetailActivity extends AppCompatActivity {
     private TextView detailName, detailPrice, detailDescription, detailDosage,
             detailCategory, detailStock, detailPrescription;
     private Button btnAddToCart;
+
+    // ⭐ NEW: We need an ID to uniquely identify the product
+    private String productID;
+
+    // ⭐ NEW: Store the product object for easy cart insertion
+    private Product currentProduct;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,22 +44,48 @@ public class MedicineDetailActivity extends AppCompatActivity {
         btnAddToCart = findViewById(R.id.btnAddToCart);
 
         // -----------------------------
-        // GET DATA FROM INTENT
+        // GET DATA FROM INTENT & PREPARE FOR CART
         // -----------------------------
+        // ⭐ Fetch all data needed to recreate a Product object ⭐
+        productID = getIntent().getStringExtra("id"); // Assume 'id' is passed
         String name = getIntent().getStringExtra("name");
-        String price = getIntent().getStringExtra("price");
+        // Convert price back to double/float if it was stored as a String for display
+        String priceString = getIntent().getStringExtra("price");
+        double price = 0.0;
+        try {
+            if (priceString != null) {
+                price = Double.parseDouble(priceString.replace("₱", "").trim());
+            }
+        } catch (NumberFormatException ignored) { }
+
         String description = getIntent().getStringExtra("description");
         String dosage = getIntent().getStringExtra("dosage");
         String category = getIntent().getStringExtra("category");
         int stock = getIntent().getIntExtra("stock", 0);
         boolean prescription = getIntent().getBooleanExtra("prescription", false);
         String imageUri = getIntent().getStringExtra("image");
+        String brand = getIntent().getStringExtra("brand"); // Assuming brand is also needed/used
+
+        // -----------------------------
+        // RE-CREATE THE PRODUCT OBJECT
+        // -----------------------------
+        currentProduct = new Product(
+                productID,
+                name,
+                brand,      // Assuming brand is defined in your Product constructor
+                category,
+                description,
+                price,      // Use the parsed double price
+                stock,
+                imageUri,
+                prescription // Use the boolean
+        );
 
         // -----------------------------
         // SET UI VALUES
         // -----------------------------
         detailName.setText(name != null ? name : "Unknown");
-        detailPrice.setText(price != null ? "₱" + price : "₱0.00");
+        detailPrice.setText(String.format("₱%.2f", price)); // Use formatted price
         detailDescription.setText(description != null ? description : "No description available.");
         detailDosage.setText("Dosage: " + (dosage != null ? dosage : "N/A"));
         detailCategory.setText(category != null ? category : "Unknown Category");
@@ -66,27 +99,27 @@ public class MedicineDetailActivity extends AppCompatActivity {
             detailImage.setImageResource(R.drawable.pharmacy_logo);
         }
 
+        // Disable button if out of stock
+        if (stock <= 0) {
+            btnAddToCart.setEnabled(false);
+            btnAddToCart.setText("OUT OF STOCK");
+        }
+
         // -----------------------------
         // ADD TO CART LOGIC
         // -----------------------------
         btnAddToCart.setOnClickListener(v -> {
+            int quantity = 1; // Assuming adding 1 unit by default
 
-            CartModel item = new CartModel(
-                    name,
-                    price,
-                    description,
-                    dosage,
-                    category,
-                    stock,
-                    prescription,
-                    imageUri,
-                    1
-            );
+            // ⭐ CORRECTED CALL: Pass the Product object and the quantity ⭐
+            // Assuming CartStorage.addItem(Product product, int quantity) is the correct signature
+            CartStorage.addItem(currentProduct, quantity);
 
-            CartStorage.addToCart(item);
+            Toast.makeText(this, currentProduct.getName() + " added to cart!", Toast.LENGTH_SHORT).show();
 
-            // Move to cart screen
+            // Move to cart screen (FLAG_ACTIVITY_CLEAR_TOP ensures a clean transition)
             Intent goToCart = new Intent(this, CartActivity.class);
+            goToCart.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(goToCart);
         });
 

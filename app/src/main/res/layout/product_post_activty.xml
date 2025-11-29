@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp"
+    android:background="#F7F7F7">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:layout_marginBottom="20dp">
+
+            <Button
+                android:id="@+id/buttonInventoryManager"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Inventory"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                android:backgroundTint="#007BFF"
+                android:textColor="@android:color/white"
+                android:paddingHorizontal="20dp"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/buttonLogout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Logout"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                android:backgroundTint="#DC3545"
+                android:textColor="@android:color/white"
+                android:paddingHorizontal="20dp" />
+
+        </LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Post New Product"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="20dp"
+            android:textColor="#000000" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Product Image"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:layout_marginBottom="5dp" />
+
+        <ImageView
+            android:id="@+id/productImagePreview"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:background="#E0E0E0"
+            android:layout_marginBottom="10dp"
+            android:contentDescription="Product Image" />
+
+        <Button
+            android:id="@+id/buttonUploadImage"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_marginBottom="20dp"
+            android:text="Upload Picture"
+            android:textAllCaps="false"
+            android:backgroundTint="#007BFF"
+            android:textColor="@android:color/white" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Product Category"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:layout_marginBottom="5dp" />
+
+        <Spinner
+            android:id="@+id/spinnerCategory"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/rounded_edittext"
+            android:padding="12dp"
+            android:spinnerMode="dropdown"
+            android:layout_marginBottom="15dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Brand / Manufacturer"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:layout_marginBottom="5dp" />
+
+        <EditText
+            android:id="@+id/inputBrand"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="e.g., Unilab, Pfizer, Local Generic"
+            android:background="@drawable/rounded_edittext"
+            android:padding="12dp"
+            android:layout_marginBottom="15dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Prescription Requirement"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:layout_marginBottom="5dp" />
+
+        <Spinner
+            android:id="@+id/spinnerPrescriptionType"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/rounded_edittext"
+            android:padding="12dp"
+            android:spinnerMode="dropdown"
+            android:layout_marginBottom="15dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Product Label"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:layout_marginBottom="5dp" />
+
+        <EditText
+            android:id="@+id/inputProductLabel"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="Enter product label"
+            android:background="@drawable/rounded_edittext"
+            android:padding="12dp"
+            android:layout_marginBottom="15dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Quantity"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:layout_marginBottom="5dp" />
+
+        <EditText
+            android:id="@+id/inputQuantity"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="Enter quantity"
+            android:inputType="number"
+            android:background="@drawable/rounded_edittext"
+            android:padding="12dp"
+            android:layout_marginBottom="15dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Expiration Date"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:layout_marginBottom="5dp" />
+
+        <EditText
+            android:id="@+id/inputExpirationDate"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="MM/DD/YYYY"
+            android:inputType="date"
+            android:background="@drawable/rounded_edittext"
+            android:padding="12dp"
+            android:layout_marginBottom="15dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Description"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:layout_marginBottom="5dp" />
+
+        <EditText
+            android:id="@+id/inputDescription"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:hint="Enter description"
+            android:gravity="top"
+            android:background="@drawable/rounded_edittext"
+            android:padding="12dp"
+            android:layout_marginBottom="15dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Price"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:layout_marginBottom="5dp" />
+
+        <EditText
+            android:id="@+id/inputPrice"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="Enter price"
+            android:inputType="numberDecimal"
+            android:background="@drawable/rounded_edittext"
+            android:padding="12dp"
+            android:layout_marginBottom="20dp" />
+
+        <Button
+            android:id="@+id/buttonPostProduct"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:text="Post Product"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            android:backgroundTint="#28A745"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="10dp" />
+
+    </LinearLayout>
+</ScrollView>

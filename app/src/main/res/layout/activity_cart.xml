@@ -6,7 +6,6 @@
     android:background="#FFFFFF"
     tools:context=".CartActivity">
 
-    <!-- FIXED BOTTOM NAVIGATION -->
     <include
         android:id="@+id/bottom_nav"
         layout="@layout/include_bottom_nav"
@@ -14,12 +13,49 @@
         android:layout_width="match_parent"
         android:layout_height="60dp" />
 
-    <!-- MAIN CONTENT ABOVE NAV -->
+    <LinearLayout
+        android:id="@+id/checkoutSummaryLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:elevation="8dp"
+        android:background="@android:color/white"
+        android:layout_above="@id/bottom_nav">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Total:"
+            android:textSize="16sp"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/txtTotalAmount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="₱0.00"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/Green"
+            android:paddingBottom="10dp" />
+
+        <Button
+            android:id="@+id/btnProceedToCheckout"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="Proceed to Checkout"
+            android:textSize="18sp"
+            android:backgroundTint="#28A745"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+
     <ScrollView
         android:id="@+id/scrollContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/bottom_nav"
+        android:layout_alignParentTop="true"
+        android:layout_above="@id/checkoutSummaryLayout"
         android:padding="16dp">
 
         <LinearLayout
@@ -27,7 +63,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- TITLE -->
             <TextView
                 android:id="@+id/cartTitle"
                 android:layout_width="wrap_content"
@@ -38,7 +73,6 @@
                 android:textStyle="bold"
                 android:paddingBottom="12dp" />
 
-            <!-- EMPTY LAYOUT -->
             <LinearLayout
                 android:id="@+id/emptyLayout"
                 android:layout_width="match_parent"
@@ -53,7 +87,7 @@
                     android:layout_height="wrap_content"
                     android:paddingBottom="20dp"
                     android:text="Your cart is currently empty."
-                    android:textColor="@color/black"
+                    android:textColor="@android:color/black"
                     android:textSize="16sp" />
 
                 <ImageView
@@ -64,25 +98,12 @@
                     android:scaleType="fitCenter" />
             </LinearLayout>
 
-            <!-- CART LIST -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerCart"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
                 tools:listitem="@layout/item_cart" />
-
-            <!-- TOTAL -->
-            <TextView
-                android:id="@+id/txtTotalAmount"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="₱0.00"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/black"
-                android:paddingTop="20dp"
-                android:paddingBottom="10dp" />
 
         </LinearLayout>
     </ScrollView>
