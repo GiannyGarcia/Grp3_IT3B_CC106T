@@ -1,12 +1,14 @@
 package com.example.sanisidropharmacy;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,6 +17,11 @@ import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Adapter for the product grid in UserViewActivity.
+ * - Exposes a click-listener so the activity can open detail screen.
+ * - Implements Add to Cart directly from the grid.
+ */
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHolder> {
 
     private final Context context;
@@ -28,12 +35,17 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
 
     public ProductAdapter(Context ctx, List<Product> list) {
         this.context = ctx;
-        this.productList = list;
+        this.productList = list != null ? list : new ArrayList<>();
     }
 
-    // Allow UserViewActivity to update filtered list
+    // allow host activity to set listener
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
+    // allow host to replace list (e.g. filtered list)
     public void setProductList(List<Product> newList) {
-        this.productList = newList;
+        this.productList = newList != null ? newList : new ArrayList<>();
         notifyDataSetChanged();
     }
 
@@ -50,36 +62,53 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
 
         Product p = productList.get(position);
 
-        holder.name.setText(p.getName());
+        holder.name.setText(p.getName() != null ? p.getName() : "Unknown");
         holder.brand.setText(p.getBrand() != null ? p.getBrand() : "Unknown");
-        holder.category.setText(p.getCategory());
-        holder.price.setText("₱" + p.getPrice());
+        holder.category.setText(p.getCategory() != null ? p.getCategory() : "Uncategorized");
+        holder.price.setText(String.format("₱%.2f", p.getPrice()));
 
-        // Load image using Glide
+        // Load image using Glide, fallback to placeholder
         if (p.hasImage()) {
             Glide.with(context)
                     .load(p.getImageUrl())
-                    .placeholder(R.drawable.ic_placeholder)
+                    .placeholder(R.drawable.ic_placeholder) // ensure this drawable exists; change if needed
                     .into(holder.image);
         } else {
             holder.image.setImageResource(R.drawable.ic_placeholder);
         }
 
-        // Add to cart button — can be expanded later
+        // Add-to-cart button: store into CartStorage using context
         holder.btnAddToCart.setOnClickListener(v -> {
-            // Toast or future cart logic here
+            CartStorage.addItem(context, p, 1);
+            Toast.makeText(context, p.getName() + " added to cart!", Toast.LENGTH_SHORT).show();
         });
 
-        // Item click → go to details if you want later
+        // Item click to open detail screen
         holder.itemView.setOnClickListener(v -> {
-            if (listener != null)
+            if (listener != null) {
                 listener.onClick(p);
+                return;
+            }
+            // fallback: open MedicineDetailActivity directly if no listener set
+            Intent i = new Intent(context, MedicineDetailActivity.class);
+            i.putExtra("id", p.getId());
+            i.putExtra("name", p.getName());
+            i.putExtra("brand", p.getBrand());
+            i.putExtra("category", p.getCategory());
+            i.putExtra("description", p.getDescription());
+            i.putExtra("dosage", "");
+            i.putExtra("expiryDate", p.getExpiryDate());
+            i.putExtra("image", p.getImageUrl());
+            i.putExtra("price", String.valueOf(p.getPrice()));
+            i.putExtra("stock", p.getStock());
+            i.putExtra("prescription", p.isPrescriptionRequired());
+            context.startActivity(i);
         });
     }
 
     @Override
     public int getItemCount() {
-        return productList.size();
+        return productList == null ? 0 : productList.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

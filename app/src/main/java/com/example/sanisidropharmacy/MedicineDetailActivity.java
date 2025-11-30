@@ -63,32 +63,29 @@ public class MedicineDetailActivity extends AppCompatActivity {
             } catch (Exception ignored) {}
         }
 
-        // BRAND DEFAULT
-        if (brand == null) {
-            brand = "Unknown";
-        }
-        if (expiryDate == null) {
-            expiryDate = "N/A";
-        }
+        // SAFE DEFAULTS
+        if (brand == null) brand = "Unknown";
+        if (expiryDate == null) expiryDate = "N/A";
+        if (imageUrl == null) imageUrl = "";
 
         // -----------------------------
-        // RE-CREATE PRODUCT OBJECT (matches your Product.java constructor)
+        // RE-CREATE PRODUCT OBJECT — NO ERRORS
         // -----------------------------
         currentProduct = new Product(
-                id,                                 // int id
-                name,                               // String name
-                price,                              // double price
-                stock,                              // int stock
-                expiryDate,                         // String expiryDate
-                category,                           // String category
-                brand,                              // String brand
-                prescription ? "Prescription Required" : "OTC",   // String prescriptionType
-                imageUrl,                           // String imageUrl
-                description                          // String description
+                id,                                                     // int id
+                name,                                                   // name
+                price,                                                  // price
+                stock,                                                  // stock
+                expiryDate,                                             // expiryDate
+                category,                                               // category
+                brand,                                                  // brand
+                prescription ? "Prescription Required" : "OTC",         // prescriptionType
+                imageUrl,                                               // imageUrl
+                description                                             // description
         );
 
         // -----------------------------
-        // SET UI VALUES
+        // SET UI
         // -----------------------------
         detailName.setText(name);
         detailPrice.setText(String.format("₱%.2f", price));
@@ -98,50 +95,46 @@ public class MedicineDetailActivity extends AppCompatActivity {
         detailStock.setText("Stock: " + stock);
         detailPrescription.setText(prescription ? "Requires Prescription" : "OTC");
 
-        // Load image
-        if (imageUrl != null && !imageUrl.isEmpty()) {
+        // IMAGE
+        if (!imageUrl.isEmpty()) {
             Glide.with(this).load(Uri.parse(imageUrl)).into(detailImage);
         } else {
             detailImage.setImageResource(R.drawable.pharmacy_logo);
         }
 
-        // Disable if out of stock
+        // OUT OF STOCK
         if (stock <= 0) {
             btnAddToCart.setEnabled(false);
             btnAddToCart.setText("OUT OF STOCK");
         }
 
         // -----------------------------
-        // ADD TO CART LOGIC
+        // ADD TO CART
         // -----------------------------
         btnAddToCart.setOnClickListener(v -> {
-            CartStorage.addItem(this, currentProduct, 1);
-            Toast.makeText(this, currentProduct.getName() + " added to cart!", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(this, CartActivity.class));
+            CartStorage.addItem(MedicineDetailActivity.this, currentProduct, 1);
 
+            Toast.makeText(this,
+                    currentProduct.getName() + " added to cart!",
+                    Toast.LENGTH_SHORT).show();
+
+            startActivity(new Intent(this, CartActivity.class));
         });
 
         // -----------------------------
-        // BOTTOM NAVIGATION
+        // BOTTOM NAV
         // -----------------------------
         ImageView navHome = findViewById(R.id.nav_home);
         ImageView navCart = findViewById(R.id.nav_cart);
         ImageView navUser = findViewById(R.id.nav_user);
 
-// HOME
         navHome.setOnClickListener(v ->
-                startActivity(new Intent(MedicineDetailActivity.this, CatalogActivity.class))
-        );
+                startActivity(new Intent(this, CatalogActivity.class)));
 
-// CART
         navCart.setOnClickListener(v ->
-                startActivity(new Intent(MedicineDetailActivity.this, CartActivity.class))
-        );
+                startActivity(new Intent(this, CartActivity.class)));
 
-// PROFILE
         navUser.setOnClickListener(v ->
-                startActivity(new Intent(MedicineDetailActivity.this, UserProfileActivity.class))
-        );
-
+                startActivity(new Intent(this, UserProfileActivity.class)));
     }
 }
