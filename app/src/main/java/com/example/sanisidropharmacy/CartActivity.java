@@ -1,121 +1,95 @@
 package com.example.sanisidropharmacy;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button; // ⭐ NEW IMPORT ⭐
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast; // ⭐ NEW IMPORT ⭐
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import java.util.List;
 
 public class CartActivity extends AppCompatActivity {
 
     private RecyclerView recyclerCart;
-    private TextView txtTotal, emptyMessage;
-    private LinearLayout emptyLayout;
-    private Button btnCheckout; // ⭐ NEW: Checkout Button Variable ⭐
+    private CartAdapter cartAdapter;
+    private List<CartModel> cartList;
 
-    private ImageView navHome, navCart, navUser;
+    private LinearLayout emptyLayout;
+    private TextView textTotalPrice, txtTotalAmount;
+    private Button btnProceed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cart);
 
-        // UI Bindings
         recyclerCart = findViewById(R.id.recyclerCart);
-        txtTotal = findViewById(R.id.txtTotalAmount);
-        emptyMessage = findViewById(R.id.emptyMessage);
+        textTotalPrice = findViewById(R.id.textTotalPrice);
+        txtTotalAmount = findViewById(R.id.txtTotalAmount);
         emptyLayout = findViewById(R.id.emptyLayout);
-        btnCheckout = findViewById(R.id.btnProceedToCheckout); // ⭐ NEW: Bind the checkout button ⭐
-
-        // Assuming these IDs are correctly defined in include_bottom_nav.xml
-        navHome = findViewById(R.id.nav_home);
-        navCart = findViewById(R.id.nav_cart);
-        navUser = findViewById(R.id.nav_user);
+        btnProceed = findViewById(R.id.btnProceedToCheckout);
 
         recyclerCart.setLayoutManager(new LinearLayoutManager(this));
 
-        setupCheckoutButton(); // ⭐ NEW: Setup checkout logic ⭐
+        loadCart();
+
+        btnProceed.setOnClickListener(v -> {
+            if (!cartList.isEmpty()) {
+                startActivity(new Intent(this, CheckoutActivity.class));
+            }
+        });
+
         setupBottomNav();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        loadCartUI();
+        loadCart();
     }
 
-    private void loadCartUI() {
-        List<CartModel> cartItems = CartStorage.getCart();
+    private void loadCart() {
+        cartList = CartStorage.getCart(this);
 
-        if (cartItems == null || cartItems.isEmpty()) {
-            recyclerCart.setVisibility(View.GONE);
+        if (cartList.isEmpty()) {
             emptyLayout.setVisibility(View.VISIBLE);
-            // Hide the checkout button when the cart is empty
-            btnCheckout.setVisibility(View.GONE);
-            txtTotal.setText(String.format("₱%.2f", 0.00));
-            return;
+            recyclerCart.setVisibility(View.GONE);
+        } else {
+            emptyLayout.setVisibility(View.GONE);
+            recyclerCart.setVisibility(View.VISIBLE);
         }
 
-        // Show list and button
-        recyclerCart.setVisibility(View.VISIBLE);
-        emptyLayout.setVisibility(View.GONE);
-        btnCheckout.setVisibility(View.VISIBLE); // Show the checkout button
+        cartAdapter = new CartAdapter(cartList, this, this::updateTotalPrice);
+        recyclerCart.setAdapter(cartAdapter);
 
-        CartAdapter adapter = new CartAdapter(cartItems, this, () -> updateTotalPrice());
-
-        recyclerCart.setAdapter(adapter);
         updateTotalPrice();
     }
 
     private void updateTotalPrice() {
-        double total = CartStorage.getTotalCost();
-        txtTotal.setText(String.format("₱%.2f", total));
+        double total = 0;
+        for (CartModel item : cartList) {
+            total += item.getTotalPrice();
+        }
+
+        textTotalPrice.setText(String.format("Total: ₱%.2f", total));
+        txtTotalAmount.setText(String.format("₱%.2f", total));
     }
 
-    // -------------------------------
-    // ⭐ NEW: Checkout Button Setup ⭐
-    // -------------------------------
-    private void setupCheckoutButton() {
-        btnCheckout.setOnClickListener(v -> {
-            if (CartStorage.getCart().isEmpty()) {
-                Toast.makeText(this, "Your cart is empty. Add items to checkout.", Toast.LENGTH_SHORT).show();
-            } else {
-                // Launch the CheckoutActivity
-                Intent intent = new Intent(this, CheckoutActivity.class);
-                startActivity(intent);
-            }
-        });
-    }
-
-    // -------------------------------
-    // Bottom Navigation
-    // -------------------------------
     private void setupBottomNav() {
-        // ... (Navigation setup remains the same)
+        ImageView navHome = findViewById(R.id.nav_home);
+        ImageView navCart = findViewById(R.id.nav_cart);
+        ImageView navUser = findViewById(R.id.nav_user);
 
-        navHome.setOnClickListener(v -> {
-            Intent i = new Intent(this, CatalogActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(i);
-        });
-
-        navCart.setOnClickListener(v -> {
-            // Already here, no action needed
-        });
-
-        navUser.setOnClickListener(v -> {
-            Intent i = new Intent(this, UserProfileActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(i);
-        });
+        navCart.setOnClickListener(v -> {});
+        navHome.setOnClickListener(v ->
+                startActivity(new Intent(this, UserViewActivity.class)));
+        navUser.setOnClickListener(v ->
+                startActivity(new Intent(this, UserProfileActivity.class)));
     }
 }

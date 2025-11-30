@@ -1,120 +1,108 @@
 package com.example.sanisidropharmacy;
 
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView; // ⭐ NEW IMPORT
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast; // ⭐ NEW IMPORT
-import androidx.annotation.NonNull;
+
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+
 import java.util.List;
 
-public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
-
-    private final List<CartModel> cartItems;
-    private final Context context;
-    private final PriceUpdateCallback callback;
+public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder> {
 
     public interface PriceUpdateCallback {
         void onPriceUpdated();
     }
 
-    public CartAdapter(List<CartModel> cartItems, Context context, PriceUpdateCallback callback) {
-        this.cartItems = cartItems;
+    private List<CartModel> cartList;
+    private Context context;
+    private PriceUpdateCallback callback;
+
+    public CartAdapter(List<CartModel> cartList, Context context, PriceUpdateCallback callback) {
+        this.cartList = cartList;
         this.context = context;
         this.callback = callback;
     }
 
-    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Assuming your layout file is named 'item_cart'
-        View view = LayoutInflater.from(context).inflate(R.layout.item_cart, parent, false);
-        return new ViewHolder(view);
+    public CartViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(context).inflate(R.layout.item_cart, parent, false);
+        return new CartViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        final CartModel item = cartItems.get(position); // Use final for inner class reference
-        Product product = item.getProduct();
+    public void onBindViewHolder(CartViewHolder holder, int position) {
+        CartModel item = cartList.get(position);
+        Product p = item.getProduct();
 
-        // Calculate item subtotal (Price * Quantity)
-        double itemSubtotal = product.getPrice() * item.getQuantity();
+        holder.name.setText(p.getName());
+        holder.price.setText("₱" + p.getPrice());
+        holder.qty.setText(String.valueOf(item.getQuantity()));
 
-        holder.txtName.setText(product.getName());
-        holder.txtPrice.setText(String.format("₱%.2f", itemSubtotal));
-        holder.txtQuantity.setText(String.valueOf(item.getQuantity()));
+        // Image
+        if (p.getImageUrl() != null && !p.getImageUrl().isEmpty()) {
+            Glide.with(context)
+                    .load(Uri.parse(p.getImageUrl()))
+                    .into(holder.image);
+        } else {
+            holder.image.setImageResource(R.drawable.pharmacy_logo);
+        }
 
-        // --- ⭐ IMPLEMENT BUTTON LOGIC ⭐ ---
-
-        // 1. Delete Button Logic (ID: btnDelete)
+        // Delete
         holder.btnDelete.setOnClickListener(v -> {
-            CartStorage.removeItem(item);
-
-            // Notify RecyclerView of item removal
+            CartStorage.removeItem(context, item);
+            cartList.remove(position);
             notifyItemRemoved(position);
-            notifyItemRangeChanged(position, cartItems.size());
-            callback.onPriceUpdated(); // Update total in CartActivity
-
-            Toast.makeText(context, product.getName() + " removed.", Toast.LENGTH_SHORT).show();
-        });
-
-        // 2. Plus Button Logic (ID: btnPlus)
-        holder.btnPlus.setOnClickListener(v -> {
-            int newQty = item.getQuantity() + 1;
-
-            CartStorage.updateQuantity(item, newQty);
-            item.setQuantity(newQty);
-
-            notifyItemChanged(position);
             callback.onPriceUpdated();
         });
 
-        // 3. Minus Button Logic (ID: btnMinus)
+        // Minus
         holder.btnMinus.setOnClickListener(v -> {
-            int currentQty = item.getQuantity();
-            if (currentQty > 1) {
-                int newQty = currentQty - 1;
-
-                CartStorage.updateQuantity(item, newQty);
-                item.setQuantity(newQty);
-
-                notifyItemChanged(position);
+            int q = item.getQuantity();
+            if (q > 1) {
+                item.setQuantity(q - 1);
+                CartStorage.updateQuantity(context, item);
+                holder.qty.setText(String.valueOf(item.getQuantity()));
                 callback.onPriceUpdated();
-            } else {
-                Toast.makeText(context, "Minimum quantity is 1. Use the delete icon to remove the item.", Toast.LENGTH_SHORT).show();
             }
         });
 
-        // --- END BUTTON LOGIC ---
+        // Plus
+        holder.btnPlus.setOnClickListener(v -> {
+            int q = item.getQuantity() + 1;
+            item.setQuantity(q);
+            CartStorage.updateQuantity(context, item);
+            holder.qty.setText(String.valueOf(item.getQuantity()));
+            callback.onPriceUpdated();
+        });
     }
 
     @Override
     public int getItemCount() {
-        return cartItems.size();
+        return cartList.size();
     }
 
-    // --- ⭐ UPDATED VIEWHOLDER CLASS (Matching final XML IDs) ⭐ ---
-    static class ViewHolder extends RecyclerView.ViewHolder {
-        // Declare all views from item_cart.xml
-        ImageView imgCart, btnMinus, btnPlus, btnDelete;
-        TextView txtName, txtPrice, txtQuantity;
+    public static class CartViewHolder extends RecyclerView.ViewHolder {
 
-        public ViewHolder(@NonNull View itemView) {
+        ImageView image, btnMinus, btnPlus, btnDelete;
+        TextView name, price, qty;
+
+        public CartViewHolder(View itemView) {
             super(itemView);
-            // Initialize TextViews
-            txtName = itemView.findViewById(R.id.cartItemName);
-            txtPrice = itemView.findViewById(R.id.cartItemPrice);
 
-            // Initialize Quantity & Control Views
+            image = itemView.findViewById(R.id.cartImage);
+            name = itemView.findViewById(R.id.cartItemName);
+            price = itemView.findViewById(R.id.cartItemPrice);
+            qty = itemView.findViewById(R.id.cartItemQty);
+
             btnMinus = itemView.findViewById(R.id.btnMinus);
-            txtQuantity = itemView.findViewById(R.id.cartItemQty); // ⭐ CORRECTED ID: cartItemQty
             btnPlus = itemView.findViewById(R.id.btnPlus);
-
-            // Initialize Image Views
-            imgCart = itemView.findViewById(R.id.cartImage);
             btnDelete = itemView.findViewById(R.id.btnDelete);
         }
     }

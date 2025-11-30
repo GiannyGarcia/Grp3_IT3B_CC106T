@@ -1,7 +1,7 @@
 package com.example.sanisidropharmacy;
 
-// Represents one item in the cart with its quantity
 public class CartModel {
+
     private Product product;
     private int quantity;
 
@@ -10,19 +10,13 @@ public class CartModel {
         this.quantity = quantity;
     }
 
-    // Getters
-    public Product getProduct() {
-        return product;
-    }
+    public Product getProduct() { return product; }
+    public void setProduct(Product product) { this.product = product; }
 
-    public int getQuantity() {
-        return quantity;
-    }
+    public int getQuantity() { return quantity; }
+    public void setQuantity(int quantity) { this.quantity = quantity; }
 
-    // Setters
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public double getTotalPrice() {
+        return quantity * product.getPrice();
     }
-
-    // You'll also need Product.java to be defined, but that's standard for your app.
 }

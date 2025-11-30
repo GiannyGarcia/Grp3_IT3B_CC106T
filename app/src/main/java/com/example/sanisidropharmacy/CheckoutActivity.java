@@ -87,7 +87,7 @@ public class CheckoutActivity extends AppCompatActivity {
 
     // --- Price Calculation Logic ---
     private void calculateTotals(boolean isDelivery) {
-        List<CartModel> items = CartStorage.getCart();
+        List<CartModel> items = CartStorage.getCart(this);
         double subtotal = 0.0;
 
         for (CartModel cartItem : items) {
@@ -122,7 +122,7 @@ public class CheckoutActivity extends AppCompatActivity {
 
     // --- Order Placement Logic (UPDATED) ---
     private void placeOrder() {
-        if (CartStorage.getCart().isEmpty()) {
+        if (CartStorage.getCart(this).isEmpty()) {
             Toast.makeText(this, "Your cart is empty. Cannot place order.", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -146,7 +146,7 @@ public class CheckoutActivity extends AppCompatActivity {
         // 4. Finalize the order (Database/Server save would happen here)
 
         // 5. Clear the Cart (Crucial step)
-        CartStorage.clearCart();
+        CartStorage.clearCart(this);
 
         // 6. Navigate to Confirmation Screen
         Toast.makeText(this, "Order placed successfully! Ref: " + transactionRef, Toast.LENGTH_LONG).show();

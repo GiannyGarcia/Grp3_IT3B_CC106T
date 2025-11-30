@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
     android:background="#F7F7F7"
     tools:context=".InventoryTrackerActivity">
 
+    <!-- HEADER -->
     <TextView
         android:id="@+id/textViewInventoryHeader"
         android:layout_width="0dp"
@@ -16,11 +16,12 @@
         android:textSize="24sp"
         android:textStyle="bold"
         android:textColor="#333333"
+        android:padding="16dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="8dp"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- SUBTITLE -->
     <TextView
         android:id="@+id/textViewSubtitle"
         android:layout_width="0dp"
@@ -28,19 +29,46 @@
         android:text="Tap 'Update' after editing quantity."
         android:textSize="14sp"
         android:textColor="#777777"
-        app:layout_constraintTop_toBottomOf="@+id/textViewInventoryHeader"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        app:layout_constraintTop_toBottomOf="@id/textViewInventoryHeader"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="16dp"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- RECYCLER VIEW -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewInventory"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@+id/textViewSubtitle"
+        android:scrollbars="vertical"
+        app:layout_constraintTop_toBottomOf="@id/textViewSubtitle"
+        app:layout_constraintBottom_toTopOf="@+id/include_bottom_nav"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- ⭐ FIXED: BOTTOM NAVIGATION AT BOTTOM ⭐ -->
+    <include
+        android:id="@+id/include_bottom_nav"
+        layout="@layout/include_bottom_nav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- ⭐ FLOATING ACTION BUTTON ⭐ -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddProduct"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="Add Product"
+        android:src="@drawable/ic_add"
+        app:tint="@android:color/white"
+        app:backgroundTint="@color/teal_700"
+        app:fabSize="normal"
+        app:layout_constraintBottom_toTopOf="@id/include_bottom_nav"
         app:layout_constraintEnd_toEndOf="parent"
-        android:scrollbars="vertical"/>
+        android:layout_margin="20dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

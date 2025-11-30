@@ -1,96 +1,86 @@
 package com.example.sanisidropharmacy;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CartStorage {
 
-    // The static list holds the cart data across the application session.
-    private static List<CartModel> cartItems = new ArrayList<>();
+    private static final String PREFS_NAME = "CartPrefs";
+    private static final String KEY_CART_LIST = "cartListJson";
 
-    // --- Core Methods needed by CartActivity/CartAdapter ---
+    // Load cart
+    public static List<CartModel> getCart(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String json = prefs.getString(KEY_CART_LIST, null);
 
-    /**
-     * Retrieves the current list of items in the cart.
-     * @return The list of CartModel objects.
-     */
-    public static List<CartModel> getCart() {
-        return cartItems;
+        if (json == null) return new ArrayList<>();
+
+        Gson gson = new Gson();
+        Type type = new TypeToken<List<CartModel>>() {}.getType();
+        return gson.fromJson(json, type);
     }
 
-    /**
-     * Calculates the total cost of all items in the cart.
-     */
-    public static double getTotalCost() {
-        double total = 0;
-        for (CartModel item : cartItems) {
-            total += item.getProduct().getPrice() * item.getQuantity();
-        }
-        return total;
+    private static void saveCart(Context context, List<CartModel> list) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putString(KEY_CART_LIST, new Gson().toJson(list)).apply();
     }
 
-    // ⭐ METHOD 4: COMPLETED implementation for updating quantity ⭐
-    /**
-     * Finds a CartModel item and updates its quantity.
-     * @param itemToUpdate The CartModel instance to update (from the adapter).
-     * @param newQty The new quantity for the item.
-     */
-    public static void updateQuantity(CartModel itemToUpdate, int newQty) {
-        if (newQty < 1) {
-            // If the quantity drops to zero, we should remove the item.
-            removeItem(itemToUpdate);
-            return;
-        }
+    // Add item
+    public static void addItem(Context context, Product product, int qty) {
+        List<CartModel> cart = getCart(context);
 
-        for (CartModel item : cartItems) {
-            // Find the item by reference/equality
-            if (item.equals(itemToUpdate)) {
-                item.setQuantity(newQty);
-                return;
-            }
-        }
-    }
-
-    // ⭐ METHOD 5: COMPLETED implementation for removing item ⭐
-    /**
-     * Removes a specific CartModel object from the cart list.
-     * @param itemToRemove The CartModel instance to remove (from the adapter).
-     */
-    public static void removeItem(CartModel itemToRemove) {
-        cartItems.remove(itemToRemove);
-    }
-
-    // ⭐ METHOD 6: REQUIRED for adding items from MedicineDetailActivity ⭐
-    /**
-     * Adds a product to the cart or increases the quantity if it already exists.
-     * @param product The Product object to add.
-     * @param quantity The amount to add (usually 1).
-     */
-    public static void addItem(Product product, int quantity) {
-        if (product == null || quantity < 1) {
-            return;
-        }
-
-        // Check if the product is already in the cart (compare by ID)
-        for (CartModel item : cartItems) {
+        for (CartModel item : cart) {
             if (item.getProduct().getId() == product.getId()) {
-                // Product exists: Update the quantity
-                int newQty = item.getQuantity() + quantity;
-                item.setQuantity(newQty);
+                item.setQuantity(item.getQuantity() + qty);
+                saveCart(context, cart);
                 return;
             }
         }
 
-        // Product is new: Create a new CartModel and add it
-        CartModel newItem = new CartModel(product, quantity);
-        cartItems.add(newItem);
+        cart.add(new CartModel(product, qty));
+        saveCart(context, cart);
     }
 
-    // ⭐ NEW METHOD: FIX for CheckoutActivity compilation error (Line 135) ⭐
-    /**
-     * Clears all items from the shopping cart. Called when an order is placed.
-     */
-    public static void clearCart() {
-        cartItems.clear();
+    // Update qty
+    public static void updateQuantity(Context context, CartModel updated) {
+        List<CartModel> cart = getCart(context);
+
+        for (CartModel item : cart) {
+            if (item.getProduct().getId() == updated.getProduct().getId()) {
+                item.setQuantity(updated.getQuantity());
+                break;
+            }
+        }
+        saveCart(context, cart);
+    }
+
+    // Remove item
+    public static void removeItem(Context context, CartModel itemToRemove) {
+        List<CartModel> cart = getCart(context);
+
+        CartModel target = null;
+        for (CartModel i : cart) {
+            if (i.getProduct().getId() == itemToRemove.getProduct().getId()) {
+                target = i;
+                break;
+            }
+        }
+
+        if (target != null) {
+            cart.remove(target);
+            saveCart(context, cart);
+        }
+    }
+
+    // Clear cart
+    public static void clearCart(Context context) {
+        saveCart(context, new ArrayList<>());
     }
 }
