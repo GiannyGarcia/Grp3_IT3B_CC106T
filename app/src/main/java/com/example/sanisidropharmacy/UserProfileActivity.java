@@ -107,9 +107,10 @@ public class UserProfileActivity extends AppCompatActivity {
         order.add("items", items);
 
         RequestBody body = RequestBody.create(
-                order.toString(),
-                okhttp3.MediaType.parse("application/json; charset=utf-8")
+                okhttp3.MediaType.parse("application/json; charset=utf-8"),
+                order.toString()
         );
+
 
         api.createOrder(body).enqueue(new Callback<OrderResponse>() {
             @Override
