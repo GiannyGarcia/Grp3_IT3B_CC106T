@@ -1,11 +1,12 @@
+package com.example.sanisidropharmacy;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
-    private static final String BASE_URL = "http://10.0.2.2/pharmacy_api/";
+    // Emulator -> host machine localhost
+    public static final String BASE_URL = "http://10.0.2.2/pharmacy_api/";
     private static Retrofit retrofit;
-
 
     public static Retrofit getRetrofit() {
         if (retrofit == null) {

@@ -65,6 +65,16 @@
                 android:textSize="14sp"
                 android:layout_marginBottom="20dp" />
 
+            <Button
+                android:id="@+id/btnTestCRM"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:text="TEST CRM BACKEND"
+                android:textAllCaps="false"
+                android:backgroundTint="#FF9800"
+                android:textColor="@android:color/white"
+                android:layout_marginBottom="16dp"/>
+
             <!-- Divider -->
             <View
                 android:layout_width="match_parent"

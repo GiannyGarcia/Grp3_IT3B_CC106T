@@ -1,173 +1,141 @@
 package com.example.sanisidropharmacy;
 
-import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.util.Calendar;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class SignUpActivity extends AppCompatActivity {
 
-    private EditText nameInput, emailInput, passwordInput, birthDateInput;
-    private Button signupButton;
-    private TextView loginRedirect;
+    // REQUIRED FIELDS
+    EditText nameInput, emailInput, passwordInput;
+    EditText birthDateInput;
 
-    // ⭐ NEW: Role selector
-    private RadioGroup accountTypeGroup;
-    private RadioButton userRadio, adminRadio;
+    // OPTIONAL FIELDS
+    EditText contactInput = null, addressInput = null;
 
-    private SharedPreferences sharedPreferences;
+    // ACCOUNT TYPE (User / Admin)
+    RadioGroup accountTypeGroup;
+    RadioButton userRadio, adminRadio;
+
+    Button signupButton;
+
     private static final String USER_PREFS = "user_prefs";
+    private static final String TAG = "SignUpActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
-        // Initialize UI
+        // Required inputs
         nameInput = findViewById(R.id.nameInput);
         emailInput = findViewById(R.id.emailInput);
         passwordInput = findViewById(R.id.passwordInput);
-        birthDateInput = findViewById(R.id.birthDateInput);
-        signupButton = findViewById(R.id.signupButton);
-        loginRedirect = findViewById(R.id.loginRedirect);
 
-        // ⭐ NEW: Role
+        // Birthdate
+        birthDateInput = findViewById(R.id.birthDateInput);
+
+        // Account type radio group
         accountTypeGroup = findViewById(R.id.accountTypeGroup);
         userRadio = findViewById(R.id.userRadio);
         adminRadio = findViewById(R.id.adminRadio);
 
-        sharedPreferences = getSharedPreferences(USER_PREFS, Context.MODE_PRIVATE);
+        // Sign-up button
+        signupButton = findViewById(R.id.signupButton);
 
-        // Redirect to Login
-        loginRedirect.setOnClickListener(v -> {
-            startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
-            finish();
-        });
+        // Optional fields (your layout does not include them, so we detect safely)
+        int contactId = getResources().getIdentifier("contactInput", "id", getPackageName());
+        if (contactId != 0) contactInput = findViewById(contactId);
 
-        // Show date picker
-        birthDateInput.setOnClickListener(v -> showDatePicker());
+        int addressId = getResources().getIdentifier("addressInput", "id", getPackageName());
+        if (addressId != 0) addressInput = findViewById(addressId);
 
-        // Handle sign up
-        signupButton.setOnClickListener(v -> handleSignUp());
+        signupButton.setOnClickListener(v -> doRegister());
     }
 
-    private void handleSignUp() {
+    private void doRegister() {
         String name = nameInput.getText().toString().trim();
         String email = emailInput.getText().toString().trim();
         String password = passwordInput.getText().toString().trim();
-        String birthDate = birthDateInput.getText().toString().trim();
-
-        // ⭐ NEW: Get Role
+        String birthdate = birthDateInput.getText().toString().trim();
         String role = userRadio.isChecked() ? "User" : "Admin";
 
-        // Field validation
-        if (name.isEmpty() || email.isEmpty() || password.isEmpty() || birthDate.isEmpty()) {
-            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+        // Optional fields
+        String contact = (contactInput != null) ? contactInput.getText().toString().trim() : "";
+        String address = (addressInput != null) ? addressInput.getText().toString().trim() : "";
+
+        if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Please fill in all required fields", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Email validation
-        if (!email.contains("@") || !email.contains(".")) {
-            Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        ApiService api = ApiClient.getRetrofit().create(ApiService.class);
+        Call<AuthResponse> call = api.register(
+                name,
+                email,
+                password,
+                contact,
+                address,
+                birthdate,
+                role
+        );
 
-        // Password validation
-        if (password.length() < 8) {
-            Toast.makeText(this, "Password must be at least 8 characters", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        call.enqueue(new Callback<AuthResponse>() {
+            @Override
+            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+                if (!response.isSuccessful() || response.body() == null) {
+                    Toast.makeText(SignUpActivity.this, "Server error: Invalid response", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-        // Age validation
-        if (!isAtLeast18(birthDate)) {
-            Toast.makeText(this, "You must be at least 18 years old to register", Toast.LENGTH_SHORT).show();
-            return;
-        }
+                AuthResponse res = response.body();
 
-        // Duplicate check
-        if (sharedPreferences.contains(email + "_password")) {
-            Toast.makeText(this, "User already registered! Please log in.", Toast.LENGTH_SHORT).show();
-            return;
-        }
+                if (!res.isSuccess()) {
+                    Toast.makeText(SignUpActivity.this, res.getMessage(), Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-        // Save user
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(email + "_name", name);
-        editor.putString(email + "_email", email);
-        editor.putString(email + "_password", password);
-        editor.putString(email + "_birthdate", birthDate);
-        editor.putString(email + "_role", role); // ⭐ NEW: Save role
+                User user = res.getUser();
 
-        // Session data
-        editor.putBoolean("isLoggedIn", true);
-        editor.putString("loggedInUser", email);
-        editor.putString("session_name", name);
-        editor.putString("session_email", email);
-        editor.putString("session_birthdate", birthDate);
-        editor.putString("session_role", role); // ⭐ NEW: Save role in session
-        editor.apply();
+                // Save session
+                SharedPreferences prefs = getSharedPreferences(USER_PREFS, Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putBoolean("isLoggedIn", true);
+                editor.putInt("session_user_id", user.getId());
+                editor.putString("session_name", user.getFullname());
+                editor.putString("session_email", user.getEmail());
+                editor.putString("session_birthdate", user.getBirthdate());
+                editor.putString("session_role", user.getRole());
+                editor.putString("session_contact", user.getContact());
+                editor.putString("session_address", user.getAddress());
+                editor.putInt("session_loyalty", user.getLoyalty_points());
+                editor.apply();
 
-        Toast.makeText(this, "Account created successfully!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SignUpActivity.this, "Account created successfully!", Toast.LENGTH_SHORT).show();
 
-        // ⭐ Optional: Redirect based on role
-        if (role.equals("Admin")) {
-            startActivity(new Intent(SignUpActivity.this, ProductPostActivity.class));
-        } else {
-            startActivity(new Intent(SignUpActivity.this, CatalogActivity.class));
-        }
-
-        finish();
-    }
-
-    private void showDatePicker() {
-        Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-        DatePickerDialog dialog = new DatePickerDialog(this, (DatePicker view, int y, int m, int d) -> {
-            String date = y + "-" + (m + 1) + "-" + d;
-            birthDateInput.setText(date);
-        }, year, month, day);
-
-        dialog.show();
-    }
-
-    private boolean isAtLeast18(String birthDate) {
-        try {
-            String[] parts = birthDate.split("-");
-            int year = Integer.parseInt(parts[0]);
-            int month = Integer.parseInt(parts[1]) - 1;
-            int day = Integer.parseInt(parts[2]);
-
-            Calendar birthCal = Calendar.getInstance();
-            birthCal.set(year, month, day);
-
-            Calendar today = Calendar.getInstance();
-            int age = today.get(Calendar.YEAR) - birthCal.get(Calendar.YEAR);
-
-            if (today.get(Calendar.MONTH) < birthCal.get(Calendar.MONTH) ||
-                    (today.get(Calendar.MONTH) == birthCal.get(Calendar.MONTH) &&
-                            today.get(Calendar.DAY_OF_MONTH) < birthCal.get(Calendar.DAY_OF_MONTH))) {
-                age--;
+                // Redirect
+                startActivity(new Intent(SignUpActivity.this, CatalogActivity.class));
+                finish();
             }
 
-            return age >= 18;
-
-        } catch (Exception e) {
-            return false;
-        }
+            @Override
+            public void onFailure(Call<AuthResponse> call, Throwable t) {
+                Log.e(TAG, "Register failed: " + t.getMessage());
+                Toast.makeText(SignUpActivity.this, "Network error. Try again.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
