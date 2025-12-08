@@ -27,8 +27,8 @@ public class UserProfileActivity extends AppCompatActivity {
 
     private TextView userName, userEmail, userBirthdate;
     private ImageView profileImage;
-    private Button editProfileButton, logoutButton;
-    private Button btnTestCRM;
+    private Button editProfileButton, logoutButton, btnTestCRM;
+
     private static final String USER_PREFS = "user_prefs";
 
     @Override
@@ -44,26 +44,20 @@ public class UserProfileActivity extends AppCompatActivity {
         logoutButton = findViewById(R.id.btnLogout);
         btnTestCRM = findViewById(R.id.btnTestCRM);
 
-        // CRM test
-        btnTestCRM.setOnClickListener(v -> testCRM());
-
         loadUserData();
 
-        // 👉 Open Edit Profile Activity
+        // CRM Test
+        btnTestCRM.setOnClickListener(v -> testCRM());
+
         editProfileButton.setOnClickListener(v -> {
-            Intent intent = new Intent(UserProfileActivity.this, EditProfileActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(UserProfileActivity.this, EditProfileActivity.class));
         });
 
-        // Logout
         logoutButton.setOnClickListener(v -> {
             SharedPreferences prefs = getSharedPreferences(USER_PREFS, Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.clear();
-            editor.apply();
+            prefs.edit().clear().apply();
 
             Toast.makeText(this, "Logged out successfully!", Toast.LENGTH_SHORT).show();
-
             Intent intent = new Intent(UserProfileActivity.this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
@@ -73,11 +67,13 @@ public class UserProfileActivity extends AppCompatActivity {
         setupBottomNav();
     }
 
-    // ---------------- CRM TEST FUNCTIONS ----------------
+    // ---------------------------------------------------------
+    // CRM TEST SEQUENCE
+    // ---------------------------------------------------------
 
     private void testCRM() {
 
-        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences(USER_PREFS, MODE_PRIVATE);
         int userId = prefs.getInt("session_user_id", -1);
 
         if (userId == -1) {
@@ -87,23 +83,22 @@ public class UserProfileActivity extends AppCompatActivity {
 
         ApiService api = ApiClient.getRetrofit().create(ApiService.class);
 
-        // 1) TEST: createOrder
+        // Build JSON for new order
         JsonObject order = new JsonObject();
         order.addProperty("user_id", userId);
         order.addProperty("total", 150.00);
         order.addProperty("payment_method", "GCash");
         order.addProperty("delivery_address", "Test Address");
+        order.addProperty("shipping_address", "Test Address");
         order.addProperty("reference", "TESTREF999");
 
         JsonArray items = new JsonArray();
-
-        JsonObject item1 = new JsonObject();
-        item1.addProperty("product_id", 1);
-        item1.addProperty("name", "Test Product");
-        item1.addProperty("qty", 2);
-        item1.addProperty("price", 75.00);
-        items.add(item1);
-
+        JsonObject item = new JsonObject();
+        item.addProperty("product_id", 1);
+        item.addProperty("name", "Test Product");
+        item.addProperty("qty", 2);
+        item.addProperty("price", 75.00);
+        items.add(item);
         order.add("items", items);
 
         RequestBody body = RequestBody.create(
@@ -111,20 +106,29 @@ public class UserProfileActivity extends AppCompatActivity {
                 order.toString()
         );
 
-
         api.createOrder(body).enqueue(new Callback<OrderResponse>() {
             @Override
             public void onResponse(Call<OrderResponse> call, Response<OrderResponse> response) {
-                Log.d("CRM", "createOrder → " + new Gson().toJson(response.body()));
-                Toast.makeText(UserProfileActivity.this, "createOrder OK", Toast.LENGTH_SHORT).show();
 
-                // When OK → fetch order history
+                if (!response.isSuccessful() || response.body() == null) {
+                    Toast.makeText(UserProfileActivity.this, "createOrder FAILED", Toast.LENGTH_SHORT).show();
+                    Log.e("CRM", "createOrder ERROR → " + response);
+                    return;
+                }
+
+                OrderResponse res = response.body();
+                Log.d("CRM", "createOrder → " + new Gson().toJson(res));
+                Toast.makeText(UserProfileActivity.this,
+                        "Order Created (ID = " + res.getOrderId() + ")",
+                        Toast.LENGTH_SHORT).show();
+
                 testGetOrders(userId);
             }
 
             @Override
             public void onFailure(Call<OrderResponse> call, Throwable t) {
-                Log.e("CRM", "createOrder ERROR: " + t.getMessage());
+                Toast.makeText(UserProfileActivity.this, "Network error (createOrder)", Toast.LENGTH_SHORT).show();
+                Log.e("CRM", "createOrder failure → " + t.getMessage());
             }
         });
     }
@@ -135,16 +139,26 @@ public class UserProfileActivity extends AppCompatActivity {
         api.getUserOrders(userId).enqueue(new Callback<OrderHistoryResponse>() {
             @Override
             public void onResponse(Call<OrderHistoryResponse> call, Response<OrderHistoryResponse> response) {
-                Log.d("CRM", "getUserOrders → " + new Gson().toJson(response.body()));
-                Toast.makeText(UserProfileActivity.this, "getUserOrders OK", Toast.LENGTH_SHORT).show();
 
-                // next, test loyalty update
+                if (!response.isSuccessful() || response.body() == null) {
+                    Log.e("CRM", "getUserOrders ERROR: null");
+                    return;
+                }
+
+                OrderHistoryResponse res = response.body();
+
+                Log.d("CRM", "getUserOrders → " + new Gson().toJson(res));
+
+                Toast.makeText(UserProfileActivity.this,
+                        "Orders Found: " + res.getOrders().size(),
+                        Toast.LENGTH_SHORT).show();
+
                 testUpdateLoyalty(userId);
             }
 
             @Override
             public void onFailure(Call<OrderHistoryResponse> call, Throwable t) {
-                Log.e("CRM", "getUserOrders ERROR: " + t.getMessage());
+                Log.e("CRM", "getUserOrders failure → " + t.getMessage());
             }
         });
     }
@@ -155,16 +169,24 @@ public class UserProfileActivity extends AppCompatActivity {
         api.updateLoyalty(userId, 5).enqueue(new Callback<LoyaltyResponse>() {
             @Override
             public void onResponse(Call<LoyaltyResponse> call, Response<LoyaltyResponse> response) {
-                Log.d("CRM", "updateLoyalty → " + new Gson().toJson(response.body()));
-                Toast.makeText(UserProfileActivity.this, "updateLoyalty OK", Toast.LENGTH_SHORT).show();
+                if (!response.isSuccessful() || response.body() == null) {
+                    Log.e("CRM", "updateLoyalty ERROR");
+                    return;
+                }
 
-                // final → fetch loyalty
+                LoyaltyResponse res = response.body();
+                Log.d("CRM", "updateLoyalty → " + new Gson().toJson(res));
+
+                Toast.makeText(UserProfileActivity.this,
+                        "Loyalty Updated: +5 points",
+                        Toast.LENGTH_SHORT).show();
+
                 testGetLoyalty(userId);
             }
 
             @Override
             public void onFailure(Call<LoyaltyResponse> call, Throwable t) {
-                Log.e("CRM", "updateLoyalty ERROR: " + t.getMessage());
+                Log.e("CRM", "updateLoyalty failure → " + t.getMessage());
             }
         });
     }
@@ -175,18 +197,28 @@ public class UserProfileActivity extends AppCompatActivity {
         api.getLoyalty(userId).enqueue(new Callback<LoyaltyResponse>() {
             @Override
             public void onResponse(Call<LoyaltyResponse> call, Response<LoyaltyResponse> response) {
-                Log.d("CRM", "getLoyalty → " + new Gson().toJson(response.body()));
-                Toast.makeText(UserProfileActivity.this, "getLoyalty OK", Toast.LENGTH_SHORT).show();
+
+                if (!response.isSuccessful() || response.body() == null) {
+                    Log.e("CRM", "getLoyalty ERROR");
+                    return;
+                }
+
+                LoyaltyResponse res = response.body();
+                Log.d("CRM", "getLoyalty → " + new Gson().toJson(res));
+
+                Toast.makeText(UserProfileActivity.this,
+                        "Current Loyalty Points: " + res.getPoints(),
+                        Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onFailure(Call<LoyaltyResponse> call, Throwable t) {
-                Log.e("CRM", "getLoyalty ERROR: " + t.getMessage());
+                Log.e("CRM", "getLoyalty failure → " + t.getMessage());
             }
         });
     }
 
-    // ---------------- END CRM TEST FUNCTIONS ----------------
+    // ---------------------------------------------------------
 
     @Override
     protected void onResume() {
@@ -223,22 +255,20 @@ public class UserProfileActivity extends AppCompatActivity {
 
             if (navHome != null) {
                 navHome.setOnClickListener(v -> {
-                    Intent intent = new Intent(UserProfileActivity.this, CatalogActivity.class);
-                    startActivity(intent);
+                    startActivity(new Intent(UserProfileActivity.this, CatalogActivity.class));
                     finish();
                 });
             }
 
             if (navCart != null) {
                 navCart.setOnClickListener(v -> {
-                    Intent intent = new Intent(UserProfileActivity.this, CartActivity.class);
-                    startActivity(intent);
+                    startActivity(new Intent(UserProfileActivity.this, CartActivity.class));
                     finish();
                 });
             }
 
             if (navUser != null) {
-                Toast.makeText(this, "You're already viewing your profile", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Already viewing profile", Toast.LENGTH_SHORT).show();
             }
         }
     }
