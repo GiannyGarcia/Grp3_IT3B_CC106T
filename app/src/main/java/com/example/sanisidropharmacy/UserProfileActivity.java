@@ -131,20 +131,29 @@ public class UserProfileActivity extends AppCompatActivity {
             public void onResponse(Call<OrderResponse> call, Response<OrderResponse> response) {
 
                 if (response.body() == null) {
-                    Toast.makeText(UserProfileActivity.this, "createOrder FAILED", Toast.LENGTH_SHORT).show();
-                    Log.e("CRM", "createOrder ERROR → Null body");
+                    Toast.makeText(UserProfileActivity.this, "CreateOrder: NULL BODY", Toast.LENGTH_LONG).show();
+                    Log.e("CRM", "NULL BODY: " + response);
                     return;
                 }
 
                 OrderResponse res = response.body();
+
+                // Show exact error/success message from PHP
+                Toast.makeText(UserProfileActivity.this,
+                        "CreateOrder → " + res.getMessage(),
+                        Toast.LENGTH_LONG).show();
+
                 Log.d("CRM", "createOrder → " + new Gson().toJson(res));
 
-                Toast.makeText(UserProfileActivity.this,
-                        "Order Created! ID = " + res.getOrderId(),
-                        Toast.LENGTH_SHORT).show();
+                if (!res.isSuccess()) {
+                    // stop if failed
+                    return;
+                }
 
+                // Continue CRM test flow only if success
                 testGetOrders(userId);
             }
+
 
             @Override
             public void onFailure(Call<OrderResponse> call, Throwable t) {

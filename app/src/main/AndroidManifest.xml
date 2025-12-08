@@ -40,8 +40,10 @@
         <activity android:name=".InventoryTrackerActivity" />
         <activity android:name=".CheckoutActivity" />
         <activity android:name=".OrderConfirmationActivity" />
-
-
+        <activity android:name=".OrderHistoryActivity" />
+        <activity android:name=".OrderDetailsActivity" />
+        <activity android:name=".LoyaltyActivity" />
+        <activity android:name=".AdminOrdersActivity" />
 
 
         <meta-data

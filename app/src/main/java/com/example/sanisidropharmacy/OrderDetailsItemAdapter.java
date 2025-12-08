@@ -34,11 +34,13 @@ public class OrderDetailsItemAdapter extends RecyclerView.Adapter<OrderDetailsIt
 
         h.name.setText(m.name);
         h.qty.setText("Qty: " + m.qty);
-        h.price.setText("₱" + m.price);
+        h.price.setText("₱" + String.format("%.2f", m.price));
     }
 
     @Override
-    public int getItemCount() { return list.size(); }
+    public int getItemCount() {
+        return list.size();
+    }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView name, qty, price;
