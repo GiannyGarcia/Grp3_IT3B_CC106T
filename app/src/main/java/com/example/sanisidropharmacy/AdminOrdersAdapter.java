@@ -19,80 +19,66 @@ import retrofit2.Response;
 
 public class AdminOrdersAdapter extends RecyclerView.Adapter<AdminOrdersAdapter.VH> {
 
-    private List<OrderModel> list;   // ← NOW USING ORDERMODEL
-    private Context ctx;
+    private final List<OrderDto> list;
+    private final Context ctx;
+    private final String[] statusFlow = {"Pending","Processing","Completed","Cancelled"};
 
-    // Allowed status flow
-    private final String[] statusFlow = {"Pending", "Processing", "Completed", "Cancelled"};
+    public AdminOrdersAdapter(List<OrderDto> list, Context ctx) { this.list=list; this.ctx=ctx; }
 
-    public AdminOrdersAdapter(List<OrderModel> list, Context ctx) {
-        this.list = list;
-        this.ctx = ctx;
+    @Override
+    public VH onCreateViewHolder(ViewGroup p, int v) {
+        return new VH(LayoutInflater.from(p.getContext()).inflate(R.layout.item_order_admin, p, false));
     }
 
     @Override
-    public VH onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new VH(LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_order_admin, parent, false));
-    }
+    public void onBindViewHolder(VH h, int pos) {
+        OrderDto o = list.get(pos);
+        h.tvRef.setText("Ref: " + (o.reference != null ? o.reference : String.valueOf(o.id)));
+        h.tvUser.setText("User ID: " + o.user_id);
+        h.tvTotal.setText("₱" + String.format("%.2f", o.total));
+        h.tvStatus.setText(o.status != null ? o.status : "Unknown");
 
-    @Override
-    public void onBindViewHolder(VH holder, int position) {
-
-        OrderModel o = list.get(position);
-
-        holder.tvRef.setText("Ref: " + (o.getReference() != null ? o.getReference() : o.getId()));
-        holder.tvUser.setText("User ID: " + o.getUserId());
-        holder.tvTotal.setText("₱" + String.format("%.2f", o.getTotal()));
-        holder.tvStatus.setText(o.getStatus());
-
-        // View order details
-        holder.btnView.setOnClickListener(v -> {
+        h.btnView.setOnClickListener(v -> {
             Intent i = new Intent(ctx, OrderDetailsActivity.class);
-            i.putExtra("orderModel", o);
+            i.putExtra("order_dto", o);
             ctx.startActivity(i);
         });
 
-        // NEXT STATUS
-        holder.btnNext.setOnClickListener(v -> {
-            int idx = indexOf(statusFlow, o.getStatus());
-            int next = (idx < statusFlow.length - 1) ? idx + 1 : idx;
+        h.btnNext.setOnClickListener(v -> {
+            int idx = indexOf(statusFlow, o.status);
+            int next = (idx == -1 ? 0 : Math.min(statusFlow.length-1, idx+1));
             String newStatus = statusFlow[next];
-            updateStatus(o.getId(), newStatus, holder, o);
+            updateStatus(o.id, newStatus, h, o);
         });
 
-        // PREVIOUS STATUS
-        holder.btnPrev.setOnClickListener(v -> {
-            int idx = indexOf(statusFlow, o.getStatus());
-            int prev = (idx > 0) ? idx - 1 : idx;
+        h.btnPrev.setOnClickListener(v -> {
+            int idx = indexOf(statusFlow, o.status);
+            int prev = (idx <= 0 ? 0 : idx-1);
             String newStatus = statusFlow[prev];
-            updateStatus(o.getId(), newStatus, holder, o);
+            updateStatus(o.id, newStatus, h, o);
         });
     }
 
     private int indexOf(String[] arr, String v) {
-        for (int i = 0; i < arr.length; i++)
-            if (arr[i].equalsIgnoreCase(v)) return i;
+        for (int i=0;i<arr.length;i++) if (arr[i].equalsIgnoreCase(v)) return i;
         return -1;
     }
 
-    private void updateStatus(int orderId, String status, VH holder, OrderModel o) {
+    private void updateStatus(int orderId, String status, VH holder, OrderDto model) {
         ApiService api = ApiClient.getRetrofit().create(ApiService.class);
-
+        // Assume ApiService.updateOrderStatus exists and returns BasicResponse
         api.updateOrderStatus(orderId, status).enqueue(new Callback<BasicResponse>() {
             @Override
             public void onResponse(Call<BasicResponse> call, Response<BasicResponse> response) {
-
-                if (!response.isSuccessful() || response.body() == null || !response.body().isSuccess()) {
+                if (!response.isSuccessful() || response.body()==null || !response.body().isSuccess()) {
                     Toast.makeText(ctx, "Failed to update status", Toast.LENGTH_SHORT).show();
                     return;
                 }
-
-                o.setStatus(status);           // update model
+                // update UI & model
                 holder.tvStatus.setText(status);
+                model.status = status;
                 Toast.makeText(ctx, "Status updated", Toast.LENGTH_SHORT).show();
             }
-
             @Override
             public void onFailure(Call<BasicResponse> call, Throwable t) {
                 Toast.makeText(ctx, "Network error", Toast.LENGTH_SHORT).show();
@@ -100,24 +86,20 @@ public class AdminOrdersAdapter extends RecyclerView.Adapter<AdminOrdersAdapter.
         });
     }
 
-    @Override
-    public int getItemCount() {
-        return list.size();
-    }
+    @Override public int getItemCount() { return (list==null) ? 0 : list.size(); }
 
     static class VH extends RecyclerView.ViewHolder {
-        TextView tvRef, tvUser, tvTotal, tvStatus;
-        Button btnPrev, btnNext, btnView;
-
+        TextView tvRef,tvUser,tvTotal,tvStatus;
+        Button btnPrev,btnNext,btnView;
         VH(View v) {
             super(v);
-            tvRef = v.findViewById(R.id.tvAdminRef);
-            tvUser = v.findViewById(R.id.tvAdminUser);
-            tvTotal = v.findViewById(R.id.tvAdminTotal);
-            tvStatus = v.findViewById(R.id.tvAdminStatus);
-            btnPrev = v.findViewById(R.id.btnPrevStatus);
-            btnNext = v.findViewById(R.id.btnNextStatus);
-            btnView = v.findViewById(R.id.btnViewAdminDetails);
+            tvRef=v.findViewById(R.id.tvAdminRef);
+            tvUser=v.findViewById(R.id.tvAdminUser);
+            tvTotal=v.findViewById(R.id.tvAdminTotal);
+            tvStatus=v.findViewById(R.id.tvAdminStatus);
+            btnPrev=v.findViewById(R.id.btnPrevStatus);
+            btnNext=v.findViewById(R.id.btnNextStatus);
+            btnView=v.findViewById(R.id.btnViewAdminDetails);
         }
     }
 }

@@ -93,8 +93,8 @@ public class UserProfileActivity extends AppCompatActivity {
     // --------------------------------------------------------------------
     private void testCRM() {
 
-        int userId = getSharedPreferences(USER_PREFS, MODE_PRIVATE)
-                .getInt("session_user_id", -1);
+        SharedPreferences prefs = getSharedPreferences(USER_PREFS, MODE_PRIVATE);
+        int userId = prefs.getInt("session_user_id", -1);
 
         if (userId == -1) {
             Toast.makeText(this, "No user logged in", Toast.LENGTH_SHORT).show();
@@ -103,6 +103,9 @@ public class UserProfileActivity extends AppCompatActivity {
 
         ApiService api = ApiClient.getRetrofit().create(ApiService.class);
 
+        // -------------------------
+        // Build Valid Test Order
+        // -------------------------
         JsonObject order = new JsonObject();
         order.addProperty("user_id", userId);
         order.addProperty("total", 150.00);
@@ -111,14 +114,16 @@ public class UserProfileActivity extends AppCompatActivity {
         order.addProperty("shipping_address", "Test Address");
         order.addProperty("reference", "TESTREF999");
 
+        // MUST MATCH MYSQL PRODUCT IDs
         JsonArray items = new JsonArray();
+
         JsonObject item = new JsonObject();
-        item.addProperty("product_id", 1);
+        item.addProperty("product_id", 1); // <-- VALID PRODUCT ID
         item.addProperty("name", "Test Product");
         item.addProperty("qty", 2);
         item.addProperty("price", 75.00);
-        items.add(item);
 
+        items.add(item);
         order.add("items", items);
 
         RequestBody body = RequestBody.create(
@@ -126,43 +131,39 @@ public class UserProfileActivity extends AppCompatActivity {
                 order.toString()
         );
 
+        // -------------------------
+        // API CALL
+        // -------------------------
         api.createOrder(body).enqueue(new Callback<OrderResponse>() {
             @Override
             public void onResponse(Call<OrderResponse> call, Response<OrderResponse> response) {
 
-                if (response.body() == null) {
-                    Toast.makeText(UserProfileActivity.this, "CreateOrder: NULL BODY", Toast.LENGTH_LONG).show();
-                    Log.e("CRM", "NULL BODY: " + response);
+                if (!response.isSuccessful() || response.body() == null) {
+                    Toast.makeText(UserProfileActivity.this, "createOrder FAILED", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 OrderResponse res = response.body();
 
-                // Show exact error/success message from PHP
-                Toast.makeText(UserProfileActivity.this,
-                        "CreateOrder → " + res.getMessage(),
-                        Toast.LENGTH_LONG).show();
-
-                Log.d("CRM", "createOrder → " + new Gson().toJson(res));
-
                 if (!res.isSuccess()) {
-                    // stop if failed
+                    Toast.makeText(UserProfileActivity.this, "Server Error: " + res.getMessage(), Toast.LENGTH_LONG).show();
                     return;
                 }
 
-                // Continue CRM test flow only if success
+                Toast.makeText(UserProfileActivity.this,
+                        "Order Created! ID = " + res.getOrderId(),
+                        Toast.LENGTH_SHORT).show();
+
                 testGetOrders(userId);
             }
 
-
             @Override
             public void onFailure(Call<OrderResponse> call, Throwable t) {
-                Log.e("CRM", "createOrder failure → " + t.getMessage());
-                Toast.makeText(UserProfileActivity.this,
-                        "Network error (createOrder)", Toast.LENGTH_SHORT).show();
+                Toast.makeText(UserProfileActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
+
 
     private void testGetOrders(int userId) {
 

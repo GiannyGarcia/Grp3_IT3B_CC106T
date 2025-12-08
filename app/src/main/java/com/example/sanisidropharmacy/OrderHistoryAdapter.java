@@ -14,10 +14,10 @@ import java.util.List;
 
 public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapter.VH> {
 
-    private final List<OrderModel> list;
+    private final List<OrderDto> list;
     private final Context ctx;
 
-    public OrderHistoryAdapter(List<OrderModel> list, Context ctx) {
+    public OrderHistoryAdapter(List<OrderDto> list, Context ctx) {
         this.list = list;
         this.ctx = ctx;
     }
@@ -32,50 +32,29 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
     @Override
     public void onBindViewHolder(VH holder, int position) {
 
-        OrderModel o = list.get(position);
+        OrderDto o = list.get(position);
 
-        // --------------------------
-        // SAFE REFERENCE HANDLING
-        // --------------------------
-        String ref = (o.getReference() != null && !o.getReference().trim().isEmpty())
-                ? o.getReference()
-                : "REF-" + o.getId();
+        String ref = (o.reference != null && !o.reference.trim().isEmpty())
+                ? o.reference
+                : "REF-" + o.id;
 
         holder.tvRef.setText("Ref: " + ref);
+        holder.tvDate.setText(o.created_at != null ? o.created_at : "Unknown Date");
+        holder.tvTotal.setText("₱" + String.format("%.2f", o.total));
+        holder.tvStatus.setText(o.status != null ? o.status : "Unknown");
 
-        // Created_at
-        holder.tvDate.setText(
-                o.getCreated_at() != null ? o.getCreated_at() : "Unknown Date"
-        );
-
-        // Total
-        holder.tvTotal.setText("₱" + String.format("%.2f", o.getTotal()));
-
-        // Status handling
-        holder.tvStatus.setText(
-                o.getStatus() != null ? o.getStatus() : "Unknown"
-        );
-
-        // --------------------------
-        // VIEW DETAILS BUTTON
-        // --------------------------
         holder.btnDetails.setOnClickListener(v -> {
-
-            // Pass FULL OrderModel object (Serializable)
             Intent intent = new Intent(ctx, OrderDetailsActivity.class);
-            intent.putExtra("order_data", o);
+            intent.putExtra("order_dto", o);   // pass serialized OrderDto
             ctx.startActivity(intent);
         });
     }
 
     @Override
     public int getItemCount() {
-        return list.size();
+        return (list == null) ? 0 : list.size();
     }
 
-    // -----------------------------------------------------
-    // VIEW HOLDER
-    // -----------------------------------------------------
     static class VH extends RecyclerView.ViewHolder {
 
         TextView tvRef, tvDate, tvTotal, tvStatus;
