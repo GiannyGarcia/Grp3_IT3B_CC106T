@@ -18,7 +18,7 @@ public class OrderModel implements Serializable {
     private List<OrderHistoryResponse.OrderLine> items;
 
     // ------------------------------
-    // ORIGINAL GETTERS
+    // SNAKE_CASE GETTERS (JSON-backed)
     // ------------------------------
     public int getId() { return id; }
     public int getUser_id() { return user_id; }
@@ -32,21 +32,24 @@ public class OrderModel implements Serializable {
     public List<OrderHistoryResponse.OrderLine> getItems() { return items; }
 
     // ------------------------------
-    // FIXED COMPATIBILITY GETTERS
+    // CAMELCASE GETTERS (used by adapters/activities)
     // ------------------------------
-
     public int getUserId() { return user_id; }
     public String getCreatedAt() { return created_at; }
     public String getPaymentMethod() { return payment_method; }
     public String getDeliveryAddress() { return delivery_address; }
 
     // ------------------------------
-    // NEEDED SETTERS
+    // SETTERS (used by conversion code)
     // ------------------------------
-
+    public void setId(int id) { this.id = id; }
+    public void setUser_id(int user_id) { this.user_id = user_id; }
+    public void setTotal(double total) { this.total = total; }
     public void setStatus(String status) { this.status = status; }
-
-    public void setItems(List<OrderHistoryResponse.OrderLine> items) {
-        this.items = items;
-    }
+    public void setCreated_at(String created_at) { this.created_at = created_at; }
+    public void setShipping_address(String shipping_address) { this.shipping_address = shipping_address; }
+    public void setDelivery_address(String delivery_address) { this.delivery_address = delivery_address; }
+    public void setPayment_method(String payment_method) { this.payment_method = payment_method; }
+    public void setReference(String reference) { this.reference = reference; }
+    public void setItems(List<OrderHistoryResponse.OrderLine> items) { this.items = items; }
 }

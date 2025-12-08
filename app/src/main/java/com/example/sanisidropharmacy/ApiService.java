@@ -33,9 +33,7 @@ public interface ApiService {
     // ---------------- CRM: GET ORDER HISTORY (User + Admin) ----------------
     // user_id = -1 → return ALL orders (admin mode)
     @GET("getUserOrders.php")
-    Call<OrderHistoryResponse> getUserOrders(
-            @Query("user_id") int userId
-    );
+    Call<OrderHistoryResponse> getUserOrders(@Query("user_id") int userId);
 
     // ---------------- CRM: LOYALTY ----------------
     @Headers({"Content-Type: application/x-www-form-urlencoded; charset=UTF-8"})

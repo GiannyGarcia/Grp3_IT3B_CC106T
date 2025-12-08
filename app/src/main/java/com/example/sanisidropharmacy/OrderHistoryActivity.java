@@ -36,9 +36,8 @@ public class OrderHistoryActivity extends AppCompatActivity {
     }
 
     private void loadOrders() {
-
-        int userId = getSharedPreferences(USER_PREFS, MODE_PRIVATE)
-                .getInt("session_user_id", -1);
+        SharedPreferences prefs = getSharedPreferences(USER_PREFS, MODE_PRIVATE);
+        int userId = prefs.getInt("session_user_id", -1);
 
         if (userId == -1) {
             Toast.makeText(this, "Not logged in", Toast.LENGTH_SHORT).show();
@@ -46,6 +45,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
         }
 
         ApiService api = ApiClient.getRetrofit().create(ApiService.class);
+
         api.getUserOrders(userId).enqueue(new Callback<OrderHistoryResponse>() {
             @Override
             public void onResponse(Call<OrderHistoryResponse> call, Response<OrderHistoryResponse> response) {
@@ -55,9 +55,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
                     return;
                 }
 
-                // Convert response DTO → actual OrderModel objects
                 List<OrderModel> list = convertToModel(response.body().getOrders());
-
                 adapter = new OrderHistoryAdapter(list, OrderHistoryActivity.this);
                 recycler.setAdapter(adapter);
             }
@@ -69,75 +67,55 @@ public class OrderHistoryActivity extends AppCompatActivity {
         });
     }
 
-    private List<OrderModel> convertToModel(List<OrderHistoryResponse.OrderItem> apiList) {
+    // ------------------------------------------------------
+    // DTO → ORDER MODEL CONVERSION
+    // ------------------------------------------------------
+    private List<OrderModel> convertToModel(List<OrderHistoryResponse.OrderItem> src) {
         List<OrderModel> out = new ArrayList<>();
+        if (src == null) return out;
 
-        for (OrderHistoryResponse.OrderItem o : apiList) {
+        for (OrderHistoryResponse.OrderItem dto : src) {
+
             OrderModel m = new OrderModel();
-            assignFields(m, o);
+
+            setField(m, "id", dto.id);
+            setField(m, "user_id", dto.user_id);
+            setField(m, "total", dto.total);
+            setField(m, "status", dto.status);
+            setField(m, "created_at", dto.created_at);
+            setField(m, "shipping_address", dto.shipping_address);
+            setField(m, "delivery_address", dto.delivery_address);
+            setField(m, "payment_method", dto.payment_method);
+            setField(m, "reference", dto.reference);
+
+            m.setItems(convertItems(dto.items));
+
             out.add(m);
         }
 
         return out;
     }
 
-    private void assignFields(OrderModel m, OrderHistoryResponse.OrderItem o) {
-        try {
-            java.lang.reflect.Field f;
-
-            f = OrderModel.class.getDeclaredField("id");
-            f.setAccessible(true);
-            f.set(m, o.id);
-
-            f = OrderModel.class.getDeclaredField("user_id");
-            f.setAccessible(true);
-            f.set(m, o.user_id);
-
-            f = OrderModel.class.getDeclaredField("total");
-            f.setAccessible(true);
-            f.set(m, o.total);
-
-            f = OrderModel.class.getDeclaredField("status");
-            f.setAccessible(true);
-            f.set(m, o.status);
-
-            f = OrderModel.class.getDeclaredField("created_at");
-            f.setAccessible(true);
-            f.set(m, o.created_at);
-
-            f = OrderModel.class.getDeclaredField("shipping_address");
-            f.setAccessible(true);
-            f.set(m, o.shipping_address);
-
-            f = OrderModel.class.getDeclaredField("delivery_address");
-            f.setAccessible(true);
-            f.set(m, o.delivery_address);
-
-            f = OrderModel.class.getDeclaredField("payment_method");
-            f.setAccessible(true);
-            f.set(m, o.payment_method);
-
-            f = OrderModel.class.getDeclaredField("reference");
-            f.setAccessible(true);
-            f.set(m, o.reference);
-
-            m.setItems(o.items);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private List<OrderHistoryResponse.OrderLine> convertItems(List<OrderHistoryResponse.OrderLine> src) {
+        if (src == null) return new ArrayList<>();
+        return src;
     }
 
+    private void setField(OrderModel m, String name, Object value) {
+        try {
+            java.lang.reflect.Field f = OrderModel.class.getDeclaredField(name);
+            f.setAccessible(true);
+            f.set(m, value);
+        } catch (Exception ignored) {}
+    }
+
+    // ------------------------------------------------------
+    // BOTTOM NAV
+    // ------------------------------------------------------
     private void setupBottomNav() {
         LinearLayout bottomNav = findViewById(R.id.include_bottom_nav);
-
-        bottomNav.findViewById(R.id.nav_home)
-                .setOnClickListener(v -> startActivity(new Intent(this, CatalogActivity.class)));
-
-        bottomNav.findViewById(R.id.nav_cart)
-                .setOnClickListener(v -> startActivity(new Intent(this, CartActivity.class)));
-
-        bottomNav.findViewById(R.id.nav_user)
-                .setOnClickListener(v -> startActivity(new Intent(this, UserProfileActivity.class)));
+        bottomNav.findViewById(R.id.nav_home).setOnClickListener(v -> startActivity(new Intent(this, CatalogActivity.class)));
+        bottomNav.findViewById(R.id.nav_cart).setOnClickListener(v -> startActivity(new Intent(this, CartActivity.class)));
+        bottomNav.findViewById(R.id.nav_user).setOnClickListener(v -> startActivity(new Intent(this, UserProfileActivity.class)));
     }
 }

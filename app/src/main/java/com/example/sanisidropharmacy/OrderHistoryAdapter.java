@@ -43,22 +43,27 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
 
         holder.tvRef.setText("Ref: " + ref);
 
+        // Created_at
         holder.tvDate.setText(
                 o.getCreated_at() != null ? o.getCreated_at() : "Unknown Date"
         );
 
+        // Total
         holder.tvTotal.setText("₱" + String.format("%.2f", o.getTotal()));
 
+        // Status handling
         holder.tvStatus.setText(
                 o.getStatus() != null ? o.getStatus() : "Unknown"
         );
 
         // --------------------------
-        // ITEM CLICK → ORDER DETAILS
+        // VIEW DETAILS BUTTON
         // --------------------------
         holder.btnDetails.setOnClickListener(v -> {
+
+            // Pass FULL OrderModel object (Serializable)
             Intent intent = new Intent(ctx, OrderDetailsActivity.class);
-            intent.putExtra("order_data", o);   // Pass FULL serialized object
+            intent.putExtra("order_data", o);
             ctx.startActivity(intent);
         });
     }

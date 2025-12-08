@@ -24,13 +24,24 @@ public class OrderItemsAdapter extends RecyclerView.Adapter<OrderItemsAdapter.VH
     @NonNull
     @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(ctx).inflate(R.layout.row_order_item, parent, false);
+        View v = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.row_order_item, parent, false);
         return new VH(v);
     }
 
     @Override
     public void onBindViewHolder(@NonNull VH holder, int position) {
-        OrderHistoryResponse.OrderLine it = items.get(position);
+
+        OrderHistoryResponse.OrderLine it =
+                (items != null && position < items.size()) ? items.get(position) : null;
+
+        if (it == null) {
+            holder.name.setText("Unknown Item");
+            holder.qty.setText("Qty: 0");
+            holder.price.setText("₱0.00");
+            return;
+        }
+
         holder.name.setText(it.name != null ? it.name : "Item");
         holder.qty.setText("Qty: " + it.qty);
         holder.price.setText("₱" + String.format("%.2f", it.price));
@@ -38,11 +49,12 @@ public class OrderItemsAdapter extends RecyclerView.Adapter<OrderItemsAdapter.VH
 
     @Override
     public int getItemCount() {
-        return items == null ? 0 : items.size();
+        return items != null ? items.size() : 0;
     }
 
     static class VH extends RecyclerView.ViewHolder {
         TextView name, qty, price;
+
         VH(@NonNull View v) {
             super(v);
             name = v.findViewById(R.id.rowName);

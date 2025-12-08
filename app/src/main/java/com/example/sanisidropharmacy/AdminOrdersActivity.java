@@ -45,7 +45,7 @@ public class AdminOrdersActivity extends AppCompatActivity {
                     return;
                 }
 
-                // Convert API DTO → UI model
+                // Convert DTO → UI Model
                 List<OrderModel> list = convertToModel(response.body().getOrders());
 
                 adapter = new AdminOrdersAdapter(list, AdminOrdersActivity.this);
@@ -59,15 +59,30 @@ public class AdminOrdersActivity extends AppCompatActivity {
         });
     }
 
-    private List<OrderModel> convertToModel(List<OrderHistoryResponse.OrderItem> apiList) {
+    // ------------------------------------------------------
+    // DTO → MODEL CONVERSION
+    // ------------------------------------------------------
+    private List<OrderModel> convertToModel(List<OrderHistoryResponse.OrderItem> src) {
         List<OrderModel> out = new ArrayList<>();
+        if (src == null) return out;
 
-        for (OrderHistoryResponse.OrderItem o : apiList) {
+        for (OrderHistoryResponse.OrderItem dto : src) {
 
             OrderModel m = new OrderModel();
 
-            // Assign fields (OrderModel uses snake_case internally)
-            assign(m, o);
+            // Map fields
+            setField(m, "id", dto.id);
+            setField(m, "user_id", dto.user_id);
+            setField(m, "total", dto.total);
+            setField(m, "status", dto.status);
+            setField(m, "created_at", dto.created_at);
+            setField(m, "shipping_address", dto.shipping_address);
+            setField(m, "delivery_address", dto.delivery_address);
+            setField(m, "payment_method", dto.payment_method);
+            setField(m, "reference", dto.reference);
+
+            // Map item list
+            m.setItems(convertItems(dto.items));
 
             out.add(m);
         }
@@ -75,53 +90,26 @@ public class AdminOrdersActivity extends AppCompatActivity {
         return out;
     }
 
-    private void assign(OrderModel m, OrderHistoryResponse.OrderItem o) {
+    // Convert DTO item list → UI OrderLine list
+    private List<OrderHistoryResponse.OrderLine> convertItems(List<OrderHistoryResponse.OrderLine> src) {
+        if (src == null) return new ArrayList<>();
+        return src; // they match exactly, no conversion needed
+    }
+
+    // Reflection setter (your model uses private fields)
+    private void setField(OrderModel m, String fieldName, Object value) {
         try {
-            java.lang.reflect.Field f;
-
-            f = OrderModel.class.getDeclaredField("id");
+            java.lang.reflect.Field f = OrderModel.class.getDeclaredField(fieldName);
             f.setAccessible(true);
-            f.set(m, o.id);
-
-            f = OrderModel.class.getDeclaredField("user_id");
-            f.setAccessible(true);
-            f.set(m, o.user_id);
-
-            f = OrderModel.class.getDeclaredField("total");
-            f.setAccessible(true);
-            f.set(m, o.total);
-
-            f = OrderModel.class.getDeclaredField("status");
-            f.setAccessible(true);
-            f.set(m, o.status);
-
-            f = OrderModel.class.getDeclaredField("created_at");
-            f.setAccessible(true);
-            f.set(m, o.created_at);
-
-            f = OrderModel.class.getDeclaredField("shipping_address");
-            f.setAccessible(true);
-            f.set(m, o.shipping_address);
-
-            f = OrderModel.class.getDeclaredField("delivery_address");
-            f.setAccessible(true);
-            f.set(m, o.delivery_address);
-
-            f = OrderModel.class.getDeclaredField("payment_method");
-            f.setAccessible(true);
-            f.set(m, o.payment_method);
-
-            f = OrderModel.class.getDeclaredField("reference");
-            f.setAccessible(true);
-            f.set(m, o.reference);
-
-            m.setItems(o.items); // setter exists
-
+            f.set(m, value);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    // ------------------------------------------------------
+    // BOTTOM NAV
+    // ------------------------------------------------------
     private void setupBottomNav() {
         LinearLayout bottomNav = findViewById(R.id.include_bottom_nav);
 
