@@ -1,6 +1,10 @@
 package com.example.sanisidropharmacy;
 
-public class OrderItem {
+import java.io.Serializable;
+
+public class OrderItemModel implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private int product_id;
     private String name;

@@ -36,6 +36,16 @@ public class UserProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile);
 
+        initViews();
+        loadUserData();
+        setupButtons();
+        setupBottomNav();
+    }
+
+    // --------------------------------------------------------------------
+    // INITIALIZE UI COMPONENTS
+    // --------------------------------------------------------------------
+    private void initViews() {
         userName = findViewById(R.id.userName);
         userEmail = findViewById(R.id.userEmail);
         userBirthdate = findViewById(R.id.userBirthdate);
@@ -43,38 +53,48 @@ public class UserProfileActivity extends AppCompatActivity {
         editProfileButton = findViewById(R.id.btnEditProfile);
         logoutButton = findViewById(R.id.btnLogout);
         btnTestCRM = findViewById(R.id.btnTestCRM);
+    }
 
-        loadUserData();
+    private void setupButtons() {
 
-        // CRM Test
-        btnTestCRM.setOnClickListener(v -> testCRM());
+        // VIEW ORDERS
+        Button btnViewOrders = findViewById(R.id.btnViewOrders);
+        btnViewOrders.setOnClickListener(v ->
+                startActivity(new Intent(UserProfileActivity.this, OrderHistoryActivity.class)));
 
-        editProfileButton.setOnClickListener(v -> {
-            startActivity(new Intent(UserProfileActivity.this, EditProfileActivity.class));
-        });
+        // VIEW LOYALTY
+        Button btnLoyalty = findViewById(R.id.btnLoyalty);
+        btnLoyalty.setOnClickListener(v ->
+                startActivity(new Intent(UserProfileActivity.this, LoyaltyActivity.class)));
 
+        // EDIT PROFILE
+        editProfileButton.setOnClickListener(v ->
+                startActivity(new Intent(UserProfileActivity.this, EditProfileActivity.class)));
+
+        // LOGOUT
         logoutButton.setOnClickListener(v -> {
             SharedPreferences prefs = getSharedPreferences(USER_PREFS, Context.MODE_PRIVATE);
             prefs.edit().clear().apply();
 
             Toast.makeText(this, "Logged out successfully!", Toast.LENGTH_SHORT).show();
+
             Intent intent = new Intent(UserProfileActivity.this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             finish();
         });
 
-        setupBottomNav();
+        // CRM DEBUG BUTTON
+        btnTestCRM.setOnClickListener(v -> testCRM());
     }
 
-    // ---------------------------------------------------------
-    // CRM TEST SEQUENCE
-    // ---------------------------------------------------------
-
+    // --------------------------------------------------------------------
+    // CRM TEST SEQUENCE (Order → Order List → Loyalty Update → Loyalty Fetch)
+    // --------------------------------------------------------------------
     private void testCRM() {
 
-        SharedPreferences prefs = getSharedPreferences(USER_PREFS, MODE_PRIVATE);
-        int userId = prefs.getInt("session_user_id", -1);
+        int userId = getSharedPreferences(USER_PREFS, MODE_PRIVATE)
+                .getInt("session_user_id", -1);
 
         if (userId == -1) {
             Toast.makeText(this, "No user logged in", Toast.LENGTH_SHORT).show();
@@ -83,7 +103,6 @@ public class UserProfileActivity extends AppCompatActivity {
 
         ApiService api = ApiClient.getRetrofit().create(ApiService.class);
 
-        // Build JSON for new order
         JsonObject order = new JsonObject();
         order.addProperty("user_id", userId);
         order.addProperty("total", 150.00);
@@ -99,6 +118,7 @@ public class UserProfileActivity extends AppCompatActivity {
         item.addProperty("qty", 2);
         item.addProperty("price", 75.00);
         items.add(item);
+
         order.add("items", items);
 
         RequestBody body = RequestBody.create(
@@ -110,16 +130,17 @@ public class UserProfileActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<OrderResponse> call, Response<OrderResponse> response) {
 
-                if (!response.isSuccessful() || response.body() == null) {
+                if (response.body() == null) {
                     Toast.makeText(UserProfileActivity.this, "createOrder FAILED", Toast.LENGTH_SHORT).show();
-                    Log.e("CRM", "createOrder ERROR → " + response);
+                    Log.e("CRM", "createOrder ERROR → Null body");
                     return;
                 }
 
                 OrderResponse res = response.body();
                 Log.d("CRM", "createOrder → " + new Gson().toJson(res));
+
                 Toast.makeText(UserProfileActivity.this,
-                        "Order Created (ID = " + res.getOrderId() + ")",
+                        "Order Created! ID = " + res.getOrderId(),
                         Toast.LENGTH_SHORT).show();
 
                 testGetOrders(userId);
@@ -127,26 +148,27 @@ public class UserProfileActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<OrderResponse> call, Throwable t) {
-                Toast.makeText(UserProfileActivity.this, "Network error (createOrder)", Toast.LENGTH_SHORT).show();
                 Log.e("CRM", "createOrder failure → " + t.getMessage());
+                Toast.makeText(UserProfileActivity.this,
+                        "Network error (createOrder)", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void testGetOrders(int userId) {
+
         ApiService api = ApiClient.getRetrofit().create(ApiService.class);
 
         api.getUserOrders(userId).enqueue(new Callback<OrderHistoryResponse>() {
             @Override
             public void onResponse(Call<OrderHistoryResponse> call, Response<OrderHistoryResponse> response) {
 
-                if (!response.isSuccessful() || response.body() == null) {
-                    Log.e("CRM", "getUserOrders ERROR: null");
+                if (response.body() == null) {
+                    Log.e("CRM", "getUserOrders ERROR: Null body");
                     return;
                 }
 
                 OrderHistoryResponse res = response.body();
-
                 Log.d("CRM", "getUserOrders → " + new Gson().toJson(res));
 
                 Toast.makeText(UserProfileActivity.this,
@@ -164,13 +186,15 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void testUpdateLoyalty(int userId) {
+
         ApiService api = ApiClient.getRetrofit().create(ApiService.class);
 
         api.updateLoyalty(userId, 5).enqueue(new Callback<LoyaltyResponse>() {
             @Override
             public void onResponse(Call<LoyaltyResponse> call, Response<LoyaltyResponse> response) {
-                if (!response.isSuccessful() || response.body() == null) {
-                    Log.e("CRM", "updateLoyalty ERROR");
+
+                if (response.body() == null) {
+                    Log.e("CRM", "updateLoyalty ERROR: Null body");
                     return;
                 }
 
@@ -178,7 +202,7 @@ public class UserProfileActivity extends AppCompatActivity {
                 Log.d("CRM", "updateLoyalty → " + new Gson().toJson(res));
 
                 Toast.makeText(UserProfileActivity.this,
-                        "Loyalty Updated: +5 points",
+                        "Loyalty Updated (+5 pts)",
                         Toast.LENGTH_SHORT).show();
 
                 testGetLoyalty(userId);
@@ -192,14 +216,15 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void testGetLoyalty(int userId) {
+
         ApiService api = ApiClient.getRetrofit().create(ApiService.class);
 
         api.getLoyalty(userId).enqueue(new Callback<LoyaltyResponse>() {
             @Override
             public void onResponse(Call<LoyaltyResponse> call, Response<LoyaltyResponse> response) {
 
-                if (!response.isSuccessful() || response.body() == null) {
-                    Log.e("CRM", "getLoyalty ERROR");
+                if (response.body() == null) {
+                    Log.e("CRM", "getLoyalty ERROR: Null body");
                     return;
                 }
 
@@ -207,7 +232,7 @@ public class UserProfileActivity extends AppCompatActivity {
                 Log.d("CRM", "getLoyalty → " + new Gson().toJson(res));
 
                 Toast.makeText(UserProfileActivity.this,
-                        "Current Loyalty Points: " + res.getPoints(),
+                        "Current Points: " + res.getPoints(),
                         Toast.LENGTH_LONG).show();
             }
 
@@ -218,8 +243,9 @@ public class UserProfileActivity extends AppCompatActivity {
         });
     }
 
-    // ---------------------------------------------------------
-
+    // --------------------------------------------------------------------
+    // LOAD USER INFO
+    // --------------------------------------------------------------------
     @Override
     protected void onResume() {
         super.onResume();
@@ -227,49 +253,31 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void loadUserData() {
-        SharedPreferences prefs = getSharedPreferences(USER_PREFS, Context.MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences(USER_PREFS, MODE_PRIVATE);
 
-        String name = prefs.getString("session_name", "Guest User");
-        String email = prefs.getString("session_email", "guest@example.com");
-        String birthdate = prefs.getString("session_birthdate", "N/A");
+        userName.setText(prefs.getString("session_name", "Guest User"));
+        userEmail.setText(prefs.getString("session_email", "guest@example.com"));
+        userBirthdate.setText("Birthdate: " + prefs.getString("session_birthdate", "N/A"));
+
         String imageUri = prefs.getString("session_imageUri", null);
-
-        userName.setText(name);
-        userEmail.setText(email);
-        userBirthdate.setText("Birthdate: " + birthdate);
-
-        if (imageUri != null) {
-            profileImage.setImageURI(Uri.parse(imageUri));
-        } else {
-            profileImage.setImageResource(R.drawable.ic_user_profile);
-        }
+        if (imageUri != null) profileImage.setImageURI(Uri.parse(imageUri));
+        else profileImage.setImageResource(R.drawable.ic_user_profile);
     }
 
+    // --------------------------------------------------------------------
+    // BOTTOM NAVIGATION
+    // --------------------------------------------------------------------
     private void setupBottomNav() {
-        LinearLayout bottomNav = findViewById(R.id.include_bottom_nav);
+        LinearLayout bottom = findViewById(R.id.include_bottom_nav);
+        if (bottom == null) return;
 
-        if (bottomNav != null) {
-            ImageView navHome = bottomNav.findViewById(R.id.nav_home);
-            ImageView navCart = bottomNav.findViewById(R.id.nav_cart);
-            ImageView navUser = bottomNav.findViewById(R.id.nav_user);
+        bottom.findViewById(R.id.nav_home).setOnClickListener(v ->
+                startActivity(new Intent(this, CatalogActivity.class)));
 
-            if (navHome != null) {
-                navHome.setOnClickListener(v -> {
-                    startActivity(new Intent(UserProfileActivity.this, CatalogActivity.class));
-                    finish();
-                });
-            }
+        bottom.findViewById(R.id.nav_cart).setOnClickListener(v ->
+                startActivity(new Intent(this, CartActivity.class)));
 
-            if (navCart != null) {
-                navCart.setOnClickListener(v -> {
-                    startActivity(new Intent(UserProfileActivity.this, CartActivity.class));
-                    finish();
-                });
-            }
-
-            if (navUser != null) {
-                Toast.makeText(this, "Already viewing profile", Toast.LENGTH_SHORT).show();
-            }
-        }
+        bottom.findViewById(R.id.nav_user).setOnClickListener(v ->
+                Toast.makeText(this, "Already on Profile", Toast.LENGTH_SHORT).show());
     }
 }

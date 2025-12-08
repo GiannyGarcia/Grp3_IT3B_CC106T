@@ -1,8 +1,9 @@
 package com.example.sanisidropharmacy;
 
-public class LoyaltyResponse {
+public class BasicResponse {
     private boolean success;
-    private int points;
+    private String message;
+
     public boolean isSuccess() { return success; }
-    public int getPoints() { return points; }
+    public String getMessage() { return message; }
 }

@@ -17,7 +17,7 @@ public interface ApiService {
     @POST("register.php")
     Call<AuthResponse> register(@Body RequestBody body);
 
-    // ---------------- AUTH: LOGIN (FORM DATA OK) ----------------
+    // ---------------- AUTH: LOGIN ----------------
     @Headers({"Content-Type: application/x-www-form-urlencoded; charset=UTF-8"})
     @FormUrlEncoded
     @POST("login.php")
@@ -26,12 +26,16 @@ public interface ApiService {
             @Field("password") String password
     );
 
-    // ---------------- CRM: ORDERS ----------------
+    // ---------------- CRM: CREATE ORDER ----------------
     @POST("createOrder.php")
     Call<OrderResponse> createOrder(@Body RequestBody body);
 
+    // ---------------- CRM: GET ORDER HISTORY (User + Admin) ----------------
+    // user_id = -1 → return ALL orders (admin mode)
     @GET("getUserOrders.php")
-    Call<OrderHistoryResponse> getUserOrders(@Query("user_id") int userId);
+    Call<OrderHistoryResponse> getUserOrders(
+            @Query("user_id") int userId
+    );
 
     // ---------------- CRM: LOYALTY ----------------
     @Headers({"Content-Type: application/x-www-form-urlencoded; charset=UTF-8"})
@@ -43,5 +47,37 @@ public interface ApiService {
     );
 
     @GET("getLoyalty.php")
-    Call<LoyaltyResponse> getLoyalty(@Query("user_id") int userId);
+    Call<LoyaltyResponse> getLoyalty(
+            @Query("user_id") int userId
+    );
+
+    // Admin - get all orders
+    @GET("getAllOrders.php")
+    Call<OrderHistoryResponse> getAllOrders();
+
+    // Admin - update order status
+    @FormUrlEncoded
+    @POST("updateOrderStatus.php")
+    Call<BasicResponse> updateOrderStatus(
+            @Field("order_id") int orderId,
+            @Field("status") String status
+    );
+
+    // Admin - get loyalty summary
+    @GET("adminGetLoyaltySummary.php")
+    Call<AdminLoyaltySummaryResponse> getAdminLoyaltySummary();
+
+    // Rewards - list available rewards
+    @GET("getRewards.php")
+    Call<RewardsResponse> getRewards();
+
+    // Rewards - redeem
+    @FormUrlEncoded
+    @POST("redeemReward.php")
+    Call<BasicResponse> redeemReward(
+            @Field("user_id") int userId,
+            @Field("reward_id") int rewardId
+    );
+
+
 }

@@ -144,22 +144,43 @@ public class CheckoutActivity extends AppCompatActivity {
         String transactionRef = generateReferenceNumber();
 
         // 4. Finalize the order (Database/Server save would happen here)
+        // (If you later implement an API call, make sure to use final copies of any local variables
+        // that are referenced inside the callback.)
 
         // 5. Clear the Cart (Crucial step)
         CartStorage.clearCart(this);
+
+        // Prepare final values and make final copies to use inside any inner classes (if any)
+        double subtotal = computeSubtotal();
+        double finalShipping = isDelivery ? DELIVERY_FEE : 0.0;
+        double grandTotal = subtotal + finalShipping;
+
+        // make final copies so they can be safely used in inner classes / listeners
+        final double finalGrandTotalValue = grandTotal;
+        final boolean finalIsDelivery = isDelivery;
 
         // 6. Navigate to Confirmation Screen
         Toast.makeText(this, "Order placed successfully! Ref: " + transactionRef, Toast.LENGTH_LONG).show();
 
         Intent intent = new Intent(this, OrderConfirmationActivity.class);
-        // Pass essential details
-        intent.putExtra("grandTotal", textGrandTotal.getText().toString());
-        intent.putExtra("method", orderMethod);
+        // Pass essential details as strings (safe)
+        intent.putExtra("grandTotal", String.format("₱%.2f", finalGrandTotalValue));
+        intent.putExtra("method", finalIsDelivery ? "Delivery" : "Pickup");
         // ⭐ NEW: Pass the Reference Number ⭐
         intent.putExtra("reference", transactionRef);
         startActivity(intent);
 
         finish();
+    }
+
+    // helper used to compute subtotal so we use same logic as calculateTotals
+    private double computeSubtotal() {
+        List<CartModel> items = CartStorage.getCart(this);
+        double subtotal = 0.0;
+        for (CartModel cartItem : items) {
+            subtotal += cartItem.getProduct().getPrice() * cartItem.getQuantity();
+        }
+        return subtotal;
     }
 
     // --- Simple Validation for Delivery Mode ---

@@ -1,11 +1,27 @@
 package com.example.sanisidropharmacy;
 
+import com.google.gson.annotations.SerializedName;
+
 public class OrderResponse {
+
+    @SerializedName("success")
     private boolean success;
-    private int order_id;
+
+    @SerializedName("message")
     private String message;
 
-    public boolean isSuccess() { return success; }
-    public int getOrderId() { return order_id; }
-    public String getMessage() { return message; }
+    @SerializedName("order_id")
+    private int orderId;
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public int getOrderId() {
+        return orderId;
+    }
 }

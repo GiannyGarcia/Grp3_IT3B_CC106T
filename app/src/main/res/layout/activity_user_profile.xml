@@ -93,6 +93,26 @@
                 android:textColor="@color/white"
                 android:layout_marginBottom="12dp" />
 
+            <Button
+                android:id="@+id/btnViewOrders"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="My Orders"
+                android:textStyle="bold"
+                android:layout_marginTop="18dp"
+                android:backgroundTint="#008577"
+                android:textColor="@android:color/white"/>
+
+            <Button
+                android:id="@+id/btnLoyalty"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="My Loyalty Points"
+                android:textStyle="bold"
+                android:layout_marginTop="10dp"
+                android:backgroundTint="#00695C"
+                android:textColor="@android:color/white"/>
+
             <!-- Logout button -->
             <Button
                 android:id="@+id/btnLogout"

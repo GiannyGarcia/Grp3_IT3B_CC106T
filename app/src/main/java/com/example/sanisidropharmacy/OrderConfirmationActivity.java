@@ -4,45 +4,55 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 public class OrderConfirmationActivity extends AppCompatActivity {
+
+    private TextView textConfirmation;
+    private Button btnContinueShopping;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order_confirmation);
 
-        TextView textConfirmation = findViewById(R.id.textConfirmationMessage);
-        Button btnContinueShopping = findViewById(R.id.btnContinueShopping);
+        textConfirmation = findViewById(R.id.textConfirmationMessage);
+        btnContinueShopping = findViewById(R.id.btnContinueShopping);
 
-        // Retrieve data passed from CheckoutActivity
         Intent intent = getIntent();
         String grandTotal = intent.getStringExtra("grandTotal");
         String method = intent.getStringExtra("method");
-        // ⭐ NEW: Retrieve the Reference Number ⭐
         String reference = intent.getStringExtra("reference");
+        int orderId = intent.getIntExtra("orderId", -1);
 
-        // Display a summary of the order
-        String message = "Your order has been successfully placed!";
+        StringBuilder message = new StringBuilder();
+        message.append("Your order has been placed successfully!");
 
-        // ⭐ NEW: Display the Reference Number prominently ⭐
         if (reference != null && !reference.isEmpty()) {
-            message += "\n\nReference No.: " + reference;
+            message.append("\n\nReference No.: ").append(reference);
         }
 
-        message += "\n\nTotal Paid: " + grandTotal;
-        message += "\nDelivery Method: " + method;
-        message += "\n\nThank you for shopping with San Isidro Pharmacy!";
+        if (orderId != -1) {
+            message.append("\nOrder ID: ").append(orderId);
+        }
 
-        textConfirmation.setText(message);
+        if (grandTotal != null) {
+            message.append("\n\nTotal Paid: ").append(grandTotal);
+        }
 
-        // Set up the button to return to the catalog
+        if (method != null) {
+            message.append("\nDelivery Method: ").append(method);
+        }
+
+        message.append("\n\nThank you for shopping with San Isidro Pharmacy!");
+
+        textConfirmation.setText(message.toString());
+
         btnContinueShopping.setOnClickListener(v -> {
-            Intent homeIntent = new Intent(this, CatalogActivity.class);
-            // Flags clear the back stack so the user cannot press back to get to checkout
-            homeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(homeIntent);
+            Intent home = new Intent(OrderConfirmationActivity.this, CatalogActivity.class);
+            home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(home);
         });
     }
 }
