@@ -28,7 +28,7 @@ public class LoginActivity extends AppCompatActivity {
     RadioButton radioUser, radioAdmin;
 
     private static final String USER_PREFS = "user_prefs";
-    private static final String TAG = "LoginActivity";
+    private static final String TAG = "LOGIN_ERROR";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,80 +61,60 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        // 1) Try server login using Retrofit
         ApiService api = ApiClient.getRetrofit().create(ApiService.class);
         Call<AuthResponse> call = api.login(email, password);
+
         call.enqueue(new Callback<AuthResponse>() {
             @Override
             public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    User user = response.body().getUser();
-                    // Save session in SharedPreferences
-                    SharedPreferences prefs = getSharedPreferences(USER_PREFS, Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = prefs.edit();
-                    editor.putBoolean("isLoggedIn", true);
-                    editor.putInt("session_user_id", user.getId());
-                    editor.putString("session_name", user.getFullname());
-                    editor.putString("session_email", user.getEmail());
-                    editor.putString("session_contact", user.getContact());
-                    editor.putString("session_address", user.getAddress());
-                    editor.putInt("session_loyalty", user.getLoyalty_points());
-                    editor.apply();
 
-                    Toast.makeText(LoginActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
-
-                    // Redirect based on (old role value) — attempt to keep prior behavior:
-                    // If your server returns role in future, use it. For now default to Catalog.
-                    startActivity(new Intent(LoginActivity.this, CatalogActivity.class));
-                    finish();
-                } else {
-                    // Server responded but login invalid
-                    Toast.makeText(LoginActivity.this, "Invalid credentials (server)", Toast.LENGTH_SHORT).show();
+                if (!response.isSuccessful()) {
+                    Toast.makeText(LoginActivity.this, "Server error: " + response.code(), Toast.LENGTH_SHORT).show();
+                    return;
                 }
+
+                AuthResponse res = response.body();
+                if (res == null) {
+                    Toast.makeText(LoginActivity.this, "Empty server response", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (!res.isSuccess()) {
+                    Toast.makeText(LoginActivity.this, "Invalid email or password", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // VALID LOGIN
+                User user = res.getUser();
+                saveSession(user);
+
+                Toast.makeText(LoginActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(LoginActivity.this, CatalogActivity.class));
+                finish();
             }
 
             @Override
             public void onFailure(Call<AuthResponse> call, Throwable t) {
-                Log.e(TAG, "Server login failed: " + t.getMessage());
-                // Fallback: local SharedPreferences-based login (legacy behavior)
-                performLocalLoginFallback(email, password);
+                Log.e(TAG, "Login failed: " + t.getMessage());
+                Toast.makeText(LoginActivity.this,
+                        "Network Error: " + t.getMessage(),
+                        Toast.LENGTH_LONG).show();
             }
         });
     }
 
-    private void performLocalLoginFallback(String email, String password) {
+    private void saveSession(User user) {
         SharedPreferences prefs = getSharedPreferences(USER_PREFS, Context.MODE_PRIVATE);
-
-        String savedEmail = prefs.getString(email + "_email", null);
-        String savedPassword = prefs.getString(email + "_password", null);
-        String savedRole = prefs.getString(email + "_role", "User");
-
-        // Check if user exists
-        if (savedEmail == null) {
-            runOnUiThread(() -> Toast.makeText(this, "Account not found (offline). Please sign up or check connection.", Toast.LENGTH_SHORT).show());
-            return;
-        }
-
-        // Check password
-        if (!savedPassword.equals(password)) {
-            runOnUiThread(() -> Toast.makeText(this, "Incorrect password (offline)!", Toast.LENGTH_SHORT).show());
-            return;
-        }
-
-        // Save active session (local)
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putBoolean("isLoggedIn", true);
-        editor.putString("loggedInUser", email);
-        editor.apply();
 
-        runOnUiThread(() -> {
-            Toast.makeText(this, "Login successful (offline)!", Toast.LENGTH_SHORT).show();
-            if (savedRole.equals("Admin")) {
-                startActivity(new Intent(this, ProductPostActivity.class));
-            } else {
-                startActivity(new Intent(this, CatalogActivity.class));
-            }
-            finish();
-        });
+        editor.putBoolean("isLoggedIn", true);
+        editor.putInt("session_user_id", user.getId());
+        editor.putString("session_name", user.getFullname());
+        editor.putString("session_email", user.getEmail());
+        editor.putString("session_contact", user.getContact());
+        editor.putString("session_address", user.getAddress());
+        editor.putInt("session_loyalty", user.getLoyalty_points());
+
+        editor.apply();
     }
 }

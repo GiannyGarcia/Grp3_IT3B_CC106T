@@ -16,7 +16,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
 
-    private static final String BASE_URL = "https://spriteless-unclerical-alease.ngrok-free.dev/pharmacy_api/";
+    private static final String BASE_URL = "https://spriteless-unclerical-alease.ngrok-free.dev/";
+
 
     private static Retrofit retrofit;
 
